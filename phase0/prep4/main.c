@@ -21,7 +21,6 @@
 
 __BEGIN_DECLS
 extern void TimerEntry(void);
-void TimerCode(void);
 __END_DECLS
 
 
