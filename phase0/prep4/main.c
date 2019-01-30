@@ -3,15 +3,20 @@
 #include <spede/machine/proc_reg.h>
 #include <spede/machine/seg.h>
 #include <spede/machine/pic.h>
-
+#include <spede/time.h> // From service.c
 
 /*Type: Ptr to function take no parameters, return nothing. An ISR */
 typedef void (*PFV)(void);
 
 
+clock_t tick_count = 0; /* Count timer ticks, whatever the rate. (from service.c) */ 
+
 __BEGIN_DECLS
 /* first-level handler entry (written in assembly) */
 extern void timer_entry(void);
+
+void timer_ISR(void); /* from service.c */
+
 __END_DECLS
 
 
@@ -20,6 +25,19 @@ __END_DECLS
  * It's really a pointer to the start of 256 "i386_gate" structs.
  */
 struct i386_gate * idt_table;
+
+
+void timer_ISR() {
+  /* Output a character once every second. */  
+  if( 0 == (++tick_count % CLK_TCK) ) {
+    cons_putchar('X');  
+  }
+  /**
+   * Dismiss the timer interrupt. Send a "specific End-Of_interrupt
+   * for IRQ 0" command to the Master Interrupt Control Unit.
+   */ 
+  outportb(ICU0_IOBASE, SPECIFIC_EOI(IRQ_TIMER));
+}
 
 
 /**
