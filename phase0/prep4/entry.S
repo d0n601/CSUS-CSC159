@@ -1,8 +1,8 @@
 #include <spede/machine/asmacros.h>
 
-ENTRY(timer_entry)
+ENTRY(TimerEntry)
   pusha
   cld
-  call CNAME(timer_ISR)
+  call CNAME(TimerCode)
   popa
   iret

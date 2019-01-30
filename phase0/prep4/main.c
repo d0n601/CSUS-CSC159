@@ -1,3 +1,10 @@
+//*********************************************************************
+// NAME: Ryan Kozak
+//
+// main.c of 159, phase 0, prep 4, Timer Interrupt
+//*********************************************************************
+
+
 #include <spede/flames.h>
 #include <spede/machine/io.h>
 #include <spede/machine/proc_reg.h>
@@ -5,32 +12,28 @@
 #include <spede/machine/pic.h>
 #include <spede/time.h> // From service.c
 
+#define VID_MASK 0x0f00     // foreground bright white, background black.
+#define TIMER_INTR 32       // TIMER_INTR constant identifier.
+
+
+
 /*Type: Ptr to function take no parameters, return nothing. An ISR */
 typedef void (*PFV)(void);
-
 
 clock_t tick_count = 0; /* Count timer ticks, whatever the rate. (from service.c) */ 
 
 __BEGIN_DECLS
 /* first-level handler entry (written in assembly) */
-extern void timer_entry(void);
-
-void timer_ISR(void); /* from service.c */
-
+extern void TimerEntry(void);
+void TimerCode(void);
 __END_DECLS
 
 
-/*
- * Ptr to start of Interrupt Descriptor Table (IDT). 
- * It's really a pointer to the start of 256 "i386_gate" structs.
- */
-struct i386_gate * idt_table;
 
-
-void timer_ISR() {
+void TimerCode() {
   /* Output a character once every second. */  
   if( 0 == (++tick_count % CLK_TCK) ) {
-    cons_putchar('X');  
+    cons_putchar('.');  
   }
   /**
    * Dismiss the timer interrupt. Send a "specific End-Of_interrupt
@@ -40,42 +43,17 @@ void timer_ISR() {
 }
 
 
-/**
- *  Builds an i386 interrupt gate containing the specified "handler"
- *  (IRS entry) address. It stores that gate in the Interrupt Descriptor
- *  Table entry indexed for a specific exception/interrupt.
- */ 
-void set_exception_handler(int exception, PFV handler) {
 
-  /* Get address of this particular interrupt descriptor entry: */
-  struct i386_gate * gateptr = & idt_table[exception];
-
-  /* Build a valid Interrupt Gate in this IDT entry: */
-  fill_gate(gateptr, PTR2INT(handler), get_cs(), ACC_INTR_GATE, 0);
-}
-
-
-/**
- * Get address of IDT then hood the periodic timer IRQ vector. Unmast
- * interrupts. The timer ISR will display ticks while we wait for a 
- * keypress to exit. Incriment screen memory while waiting.
- */
 int main() {
-  
-  volatile uint16 * vidmem = (uint16 *)0X0B8000 + 80*19; /* Text line 20*/
-
-  /* First, drain any stray keypresses: */
-  while( cons_kbhit() ) { (void)cons_getchar(); }
+ 
+  struct i386_gate *intr_table;
 
   /* Find out where FLAMES placed the IDT array; */
-  idt_table = get_idt_base();
+  intr_table = get_idt_base();
 
-  /* Hook the timer interrupt. Set the timer vector (IRQ 0)
-   * to point to the assembly entry point for the timer.
-   * Now have pointer to existing IDT, fill in timer slot. 
-   * The macro IRQ_VECTOR() converts from IRQ# to vector# 
-   */
-  set_exception_handler(IRQ_VECTOR(IRQ_TIMER), timer_entry);
+   // set_exception_handler(IRQ_VECTOR(IRQ_TIMER), TimerEntry);
+   fill_gate(&intr_table[TIMER_INTR], (int)TimerEntry, get_cs(), ACC_INTR_GATE, 0);
+
 
   /**
    * Unmast IRQ 0 (the timer interrupt) while keeping all other IRQs
@@ -91,7 +69,6 @@ int main() {
   EI(); // REMOVE FOR OS CODE!!!
   while(0==cons_kbhit()) {
     IO_DELAY();
-    *vidmem +=1;
   }
 
   (void)cons_getchar(); /* Eat the keypress.  */
