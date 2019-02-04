@@ -59,7 +59,7 @@ int main() {
 
       if(ch=='b')breakpoint();
 
-      else cons_printf("\n%c pressed\n");
+      else cons_printf("\n%c pressed\n", ch);
 
     }
 
