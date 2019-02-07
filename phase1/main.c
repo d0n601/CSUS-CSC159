@@ -1,7 +1,7 @@
 // main.c, 159
 // OS phase 1
 //
-// Team Name: ??????? (Members: ??????...)
+// Team Name: IDKC (Members: )
 
 #include "k-include.h"  // SPEDE includes
 #include "k-entry.h"    // entries to kernel (TimerEntry, etc.)
@@ -18,25 +18,33 @@ char proc_stack[PROC_SIZE][PROC_STACK_SIZE];   // process runtime stacks
 struct i386_gate *intr_table;    // intr table's DRAM location
 
 void InitKernelData(void) {         // init kernel data
-   int i;
-      
-   ... = get_idt_base();            // get intr table location
 
-   Bzero(...);                      // clear 2 queues
-   Bzero(...);
-   for(i=...                        // put all PID's to pid queue
+    int i;
 
-   set run_pid to NONE
+    intr_table = get_idt_base();            // get intr table location
 
-void InitKernelControl(void) {      // init kernel control
-   fill_gate(...);                  // fill out intr table for timer
-   outportb(...);                   // mask out PIC for timer
+    Bzero(...);                      // clear 2 queues
+    Bzero(...);
+
+    for(i = 0; i < 0; i ++) {
+
+        // put all PID's to pid queue
+    }
+    run_pid = -1; //set run_pid to NONE
+
+
+/* init kernel control */
+void InitKernelControl(void) {
+    fill_gate(&intr_table[TIMER_INTR], (int)TimerEntry, get_cs(), ACC_INTR_GATE, 0); // fill out intr table for timer
+    outportb(PIC_CONTROL, TIMER_DONE);  // mask out PIC for timer
 }
 
-void Scheduler(void) {      // choose run_pid
-   if run_pid is greater than 0, just return; // OK/picked
+/* choose run_pid */
+void Scheduler(void) {
 
-   if ready_q is empty:
+    if(run_pid > 0) return; // OK/picked
+
+    if ready_q is empty:
       pick 0 as run_pid     // pick InitProc
    else:
       change state of PID 0 to ready
@@ -57,14 +65,17 @@ int main(void) {                          // OS bootstraps
    return 0; // statement never reached, compiler asks it for syntax
 }
 
-void Kernel(trapframe_t *trapframe_p) {           // kernel runs
-   char ch;
+/* kernel runs */
+void Kernel(trapframe_t *trapframe_p) {
 
-   pcb[...].trapframe_p = trapframe_p; // save it
+    char ch;
 
-   call TimerSR();                     // handle timer intr
+    pcb[...].trapframe_p = trapframe_p; // save it
 
-   if KB of PC is pressed {            // check if keyboard pressed
+    call TimerSR();                     // handle timer intr
+
+   /* keyboard of target PC is pressed */
+   if( cons_kbhit() ) {
       read the key
       if it's 'b':                     // 'b' for breakpoint
          ...                           // let's go to GDB
