@@ -6,7 +6,7 @@
 
 // clear DRAM data block, zero-fill it
 void Bzero(char *p, int bytes) {
-   ...
+   memcpy(p, 0, bytes);
 }
 
 int QisEmpty(q_t *p) { // return 1 if empty, else 0

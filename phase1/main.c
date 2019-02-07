@@ -17,20 +17,23 @@ pcb_t pcb[PROC_SIZE];               // Process Control Blocks
 char proc_stack[PROC_SIZE][PROC_STACK_SIZE];   // process runtime stacks
 struct i386_gate *intr_table;    // intr table's DRAM location
 
-void InitKernelData(void) {         // init kernel data
+
+/* init kernel data */
+void InitKernelData(void) {
 
     int i;
 
     intr_table = get_idt_base();            // get intr table location
 
-    Bzero(...);                      // clear 2 queues
-    Bzero(...);
+    /* clear 2 queues */
+    Bzero((char *)&pid_q, sizeof(q_t));
+    Bzero((char *)&ready_q, sizeof(q_t));
 
-    for(i = 0; i < 0; i ++) {
-
+    for(i = 0; i < PROC_SIZE; i ++) {
         // put all PID's to pid queue
     }
-    run_pid = -1; //set run_pid to NONE
+
+    run_pid = -1;   //set run_pid to NONE
 
 
 /* init kernel control */
@@ -44,19 +47,24 @@ void Scheduler(void) {
 
     if(run_pid > 0) return; // OK/picked
 
-    if ready_q is empty:
-      pick 0 as run_pid     // pick InitProc
-   else:
-      change state of PID 0 to ready
-      dequeue ready_q to set run_pid
+    // if ready_q is empty
+    if(QisEmpty(read_q)) {
+        pick 0 as run_pid     // pick InitProc
+    }
+    else {
+        //change state of PID 0 to ready
+        DeQ(ready_q); //dequeue ready_q to set run_pid
 
-   ... ;                    // reset run_count of selected proc
-   ... ;                    // upgrade its state to run
+        //... ;                    // reset run_count of selected proc.
+        //... ;                    // upgrade its state to run.
+    }
 }
 
-int main(void) {                          // OS bootstraps
-   call to initialize kernel data
-   call to initialize kernel control
+/* OS bootstraps */
+int main(void) {
+
+    InitKernelData();       // call to initialize kernel data.
+    InitKernelControl();    // call to initialize kernel control.
 
    call NewProcSR(InitProc) to create it  // create InitProc
    call Scheduler()
@@ -76,15 +84,15 @@ void Kernel(trapframe_t *trapframe_p) {
 
    /* keyboard of target PC is pressed */
    if( cons_kbhit() ) {
-      read the key
-      if it's 'b':                     // 'b' for breakpoint
-         ...                           // let's go to GDB
-         break;
-      if it's 'n':                     // 'n' for new process
-         call NewProcSR(UserProc);     // create a UserProc
-     }
+
+       ch = cons_getchar();            //read the key
+
+       if(ch=='b')breakpoint();        // 'b' for breakpoint
+
+       if(ch == 'n') NewProcSR(UserProc); // 'n' for new process
+
    }
-   call Scheduler()    // may need to pick another proc
+   Scheduler();                           //call Scheduler()... may need to pick another proc
    call Loader(...)
 }
 
