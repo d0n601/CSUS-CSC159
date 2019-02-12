@@ -10,11 +10,11 @@ void Bzero(char *p, int bytes) {
 }
 
 int QisEmpty(q_t *p) { // return 1 if empty, else 0
-   ...
+   return 1;
 }
 
 int QisFull(q_t *p) { // return 1 if full, else 0
-   ...
+   return 0;
 }
 
 // dequeue, 1st # in queue; if queue empty, return -1

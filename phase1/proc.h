@@ -1,9 +1,12 @@
 // proc.h, 159
 
-#if..
-#de...
+#ifndef _PROC_H_
+#define _PROC_H_
 
-...  // prototype those in proc.c here
-...
+extern void Delay(void);
+extern void ShowChar(int row, int col, char ch);
+extern void InitProc(void);
+extern void UserProc(void);
 
-#en...
+#endif
+

@@ -16,16 +16,19 @@ typedef struct {
    unsigned int efl;
 } trapframe_t;
 
+
 typedef struct {
-   ...                       // read in 1.html
-   ...
-   ...
-   ...
-} pcb_t;                     
+    state_t state;              // a process state: UNUSED, READY, or RUN;
+    int run_count;              // a timer interrupt count, reset it when the process is selected;
+    int total_count;            // accumulated timer counts since the creation of the process;
+    trapframe_t *trapframe_p;   // location of the CPU context in the process stack.
+} pcb_t;
+
+
 
 typedef struct {             // generic queue type
-  ...                        // for a simple queue
-  ...  
+  int size;                  // for a simple queue
+  int q[Q_SIZE];
 } q_t;
 
 #endif

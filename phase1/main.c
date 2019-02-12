@@ -1,7 +1,7 @@
 // main.c, 159
 // OS phase 1
 //
-// Team Name: IDKC (Members: )
+// Team Name: IDKc (Members: )
 
 #include "k-include.h"  // SPEDE includes
 #include "k-entry.h"    // entries to kernel (TimerEntry, etc.)
@@ -26,20 +26,20 @@ void InitKernelData(void) {
     intr_table = get_idt_base();            // get intr table location
 
     /* clear 2 queues */
-    Bzero((char *)&pid_q, sizeof(q_t));
-    Bzero((char *)&ready_q, sizeof(q_t));
+    Bzero((char *) &pid_q, sizeof(q_t));
+    Bzero((char *) &ready_q, sizeof(q_t));
 
-    for(i = 0; i < PROC_SIZE; i ++) {
-        // put all PID's to pid queue
+    for (i = 0; i < PROC_SIZE; i++) {
+        EnQ(i, &pid_q);   // put all PID's to pid queue
     }
 
     run_pid = -1;   //set run_pid to NONE
-
+}
 
 /* init kernel control */
 void InitKernelControl(void) {
     fill_gate(&intr_table[TIMER_INTR], (int)TimerEntry, get_cs(), ACC_INTR_GATE, 0); // fill out intr table for timer
-    outportb(PIC_CONTROL, TIMER_DONE);  // mask out PIC for timer
+    outportb(PIC_MASK, MASK);   // mask out PIC for timer
 }
 
 /* choose run_pid */
@@ -49,11 +49,11 @@ void Scheduler(void) {
 
     // if ready_q is empty
     if(QisEmpty(read_q)) {
-        pick 0 as run_pid     // pick InitProc
+        run_pid = 0; //pick 0 as run_pid     // Pick InitProc.
     }
     else {
-        //change state of PID 0 to ready
-        DeQ(ready_q); //dequeue ready_q to set run_pid
+        pcb[run_pid].state = ;       // Change state of PID 0 to ready.
+        DeQ(ready_q);                   // Dequeue ready_q to set run_pid.
 
         //... ;                    // reset run_count of selected proc.
         //... ;                    // upgrade its state to run.
@@ -66,11 +66,11 @@ int main(void) {
     InitKernelData();       // call to initialize kernel data.
     InitKernelControl();    // call to initialize kernel control.
 
-   call NewProcSR(InitProc) to create it  // create InitProc
-   call Scheduler()
-   call Loader(pcb[run_pid].trapframe_p); // load/run it
+    NewProcSR(InitProc);    //call NewProcSR(InitProc) to create it  // create InitProc
+    Scheduler();            // call Scheduler()
+    Loader(pcb[run_pid].trapframe_p);   // call Loader(pcb[run_pid].trapframe_p); // load/run it
 
-   return 0; // statement never reached, compiler asks it for syntax
+    return 0; // statement never reached, compiler asks it for syntax
 }
 
 /* kernel runs */
@@ -78,21 +78,19 @@ void Kernel(trapframe_t *trapframe_p) {
 
     char ch;
 
-    pcb[...].trapframe_p = trapframe_p; // save it
+    pcb[run_pid].trapframe_p = trapframe_p;     // Save it
 
-    call TimerSR();                     // handle timer intr
+    TimerSR();                                  // Handle timer intr
 
    /* keyboard of target PC is pressed */
    if( cons_kbhit() ) {
-
-       ch = cons_getchar();            //read the key
-
-       if(ch=='b')breakpoint();        // 'b' for breakpoint
-
-       if(ch == 'n') NewProcSR(UserProc); // 'n' for new process
-
+       ch = cons_getchar();                 //  Read the key.
+       if(ch=='b')breakpoint();             // 'b' for breakpoint.
+       if(ch == 'n') NewProcSR(UserProc);   // 'n' for new process.
    }
-   Scheduler();                           //call Scheduler()... may need to pick another proc
-   call Loader(...)
+
+   Scheduler();                                   // Call Scheduler()... may need to pick another proc.
+   Loader(pcb[run_pid].trapframe_p);              // Loader(...).
+
 }
 
