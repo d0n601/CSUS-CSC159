@@ -52,11 +52,10 @@ void Scheduler(void) {
         run_pid = 0; //pick 0 as run_pid     // Pick InitProc.
     }
     else {
-        pcb[run_pid].state = ;       // Change state of PID 0 to ready.
-        DeQ(ready_q);                   // Dequeue ready_q to set run_pid.
-
-        //... ;                    // reset run_count of selected proc.
-        //... ;                    // upgrade its state to run.
+        pcb[run_pid].state = READY;       // Change state of PID 0 to ready.
+        DeQ(ready_q);                // Dequeue ready_q to set run_pid.
+        pcb[run_pid].run_count = 0;  // Reset run_count of selected proc.
+        pcb[run_pid].state = RUN;    // Upgrade its state to run.
     }
 }
 
@@ -78,9 +77,9 @@ void Kernel(trapframe_t *trapframe_p) {
 
     char ch;
 
-    pcb[run_pid].trapframe_p = trapframe_p;     // Save it
+    pcb[run_pid].trapframe_p = trapframe_p; // Save it
 
-    TimerSR();                                  // Handle timer intr
+    TimerSR();                              // Handle timer intr
 
    /* keyboard of target PC is pressed */
    if( cons_kbhit() ) {
@@ -89,8 +88,8 @@ void Kernel(trapframe_t *trapframe_p) {
        if(ch == 'n') NewProcSR(UserProc);   // 'n' for new process.
    }
 
-   Scheduler();                                   // Call Scheduler()... may need to pick another proc.
-   Loader(pcb[run_pid].trapframe_p);              // Loader(...).
+   Scheduler();                             // Call Scheduler()... may need to pick another proc.
+   Loader(pcb[run_pid].trapframe_p);        // Loader(...).
 
 }
 
