@@ -20,21 +20,19 @@ void NewProcSR(func_p_t p) {  // arg: where process code starts
       breakpoint();  // cannot continue
    }
 
-   pid = DeQ(&ready_q);                      // alloc PID (1st is 0)
+   pid = DeQ(&ready_q);                         // alloc PID (1st is 0)
+   Bzero((char *)&pcb[pid], PROC_STACK_SIZE);   // clear PCB
+   Bzero((char *)&proc_stack[pid], PROC_STACK_SIZE);   // clear stack
+   pcb[pid].state = RUN;                        // change process state
 
-   ...
-   ...                                       // clear PCB
-   ...                                       // clear stack
-   ...                                       // change process state
-
-   if(pid > 0) ...                           // queue to ready_q if > 0
+   if(pid > 0) EnQ(pid, &ready_q);          // queue to ready_q if > 0
 
    // point trapframe_p to stack & fill it out
-   pcb[run_pid].trapframe_p = ...                             // point to stack top
-   pcb[run_pid].trapframe_p--;                                // lower by trapframe size
-   pcb[run_pid].trapframe_p->efl = EF_DEFAULT_VALUE|EF_INTR;  // enables intr
-   pcb[run_pid].trapframe_p->cs = get_cs() ;                  // dupl from CPU
-   pcb[run_pid].trapframe_p->eip = (int)p;                    // set to code
+   pcb[run_pid].trapframe_p = (trapframe_t *)proc_stack[pid];    // point to stack top
+   pcb[run_pid].trapframe_p--;                                    // lower by trapframe size
+   pcb[run_pid].trapframe_p->efl = EF_DEFAULT_VALUE|EF_INTR;      // enables intr
+   pcb[run_pid].trapframe_p->cs = get_cs() ;                      // dupl from CPU
+   pcb[run_pid].trapframe_p->eip = (int)p;                        // set to code
 }
 
 

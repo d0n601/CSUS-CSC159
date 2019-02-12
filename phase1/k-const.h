@@ -12,8 +12,8 @@
 
 #define LOOP 1666666        // handly loop limit exec asm("inb $0x80");
 #define TIME_SLICE 300      // max timer count, then rotate process
-#define PROC_SIZE 20        // max number of processes
-#define PROC_STACK_SIZE 4096     // process stack in bytes
+#define PROC_SIZE 20          // max number of processes
+#define PROC_STACK_SIZE 4096  // process stack in bytes
 #define Q_SIZE 20           // queuing capacity
 
 #define VID_MASK 0x0f00     // foreground bright white, background black
