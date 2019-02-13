@@ -29,11 +29,9 @@ void InitKernelData(void) {
     Bzero((char *) &pid_q, sizeof(q_t));
     Bzero((char *) &ready_q, sizeof(q_t));
 
-    for (i = 0; i < PROC_SIZE; i++) {
-        EnQ(i, &pid_q);   // put all PID's to pid queue
-    }
+    for (i = 1; i < Q_SIZE; i++) EnQ(i, &pid_q);   // put all PID's to pid queue
 
-    run_pid = -1;   //set run_pid to NONE
+    run_pid = NONE;   //set run_pid to NONE
 }
 
 /* init kernel control */
@@ -48,15 +46,19 @@ void Scheduler(void) {
     if(run_pid > 0) return; // OK/picked
 
     // if ready_q is empty
-    if(QisEmpty(read_q)) {
-        run_pid = 0; //pick 0 as run_pid     // Pick InitProc.
+    if(QisEmpty(&ready_q)) {
+        run_pid = 0; //pick 0 as run_pid
+        InitProc();
     }
+
     else {
-        pcb[run_pid].state = READY;       // Change state of PID 0 to ready.
-        DeQ(ready_q);                // Dequeue ready_q to set run_pid.
-        pcb[run_pid].run_count = 0;  // Reset run_count of selected proc.
-        pcb[run_pid].state = RUN;    // Upgrade its state to run.
+        pcb[0].state = READY;   // Change state of PID 0 to ready.
+        run_pid = DeQ(&ready_q);      // Dequeue ready_q to set run_pid.
     }
+    
+    pcb[run_pid].run_count = 0;   // Reset run_count of selected proc.
+    pcb[run_pid].state = RUN;    //  Upgrade its state to run.
+    
 }
 
 /* OS bootstraps */
@@ -64,10 +66,10 @@ int main(void) {
 
     InitKernelData();       // call to initialize kernel data.
     InitKernelControl();    // call to initialize kernel control.
-
-    NewProcSR(InitProc);    //call NewProcSR(InitProc) to create it  // create InitProc
+    NewProcSR(InitProc);    // create InitProc  
     Scheduler();            // call Scheduler()
-    Loader(pcb[run_pid].trapframe_p);   // call Loader(pcb[run_pid].trapframe_p); // load/run it
+
+    Loader(pcb[run_pid].trapframe_p);   // call Loader(pcb[run_pid].trapframe_p); load/run it
 
     return 0; // statement never reached, compiler asks it for syntax
 }
