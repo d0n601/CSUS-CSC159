@@ -12,16 +12,17 @@ void Delay(void) {  // delay CPU for half second by 'inb $0x80'
 }
 
 
-void ShowChar(int row, int col, char ch) {      // Show ch at row, col.
-  // unsigned short *p = VID_HOME + row + col;   // Upper-left corner of display.
-  // *p = ch + VID_MASK;
- //  outportb(PIC_CONTROL, TIMER_DONE);
+/* Show ch at row, col. */
+void ShowChar(int row, int col, char ch) {
+  unsigned short *p = VID_HOME + row + col;   // Upper-left corner of display.
+  *p = ch + VID_MASK;
+  outportb(PIC_CONTROL, TIMER_DONE);
 }
 
 
 void InitProc(void) {
 
-   while(1) {
+  while(1) {
       printf(".");//ShowChar(0, 0, '.');      // Show a dot at upper left corner on PC.
       Delay();                   // Wait for about half second.
       printf("X");//ShowChar(0, 0, ' ');      // Erase dot.

@@ -34,11 +34,13 @@ void InitKernelData(void) {
     run_pid = NONE;   //set run_pid to NONE
 }
 
+
 /* init kernel control */
 void InitKernelControl(void) {
     fill_gate(&intr_table[TIMER_INTR], (int)TimerEntry, get_cs(), ACC_INTR_GATE, 0); // fill out intr table for timer
     outportb(PIC_MASK, MASK);   // mask out PIC for timer
 }
+
 
 /* choose run_pid */
 void Scheduler(void) {
@@ -57,9 +59,9 @@ void Scheduler(void) {
     }
     
     pcb[run_pid].run_count = 0;   // Reset run_count of selected proc.
-    pcb[run_pid].state = RUN;    //  Upgrade its state to run.
-    
+    pcb[run_pid].state = RUN;    //  Upgrade its state to run. 
 }
+
 
 /* OS bootstraps */
 int main(void) {
@@ -92,6 +94,4 @@ void Kernel(trapframe_t *trapframe_p) {
 
    Scheduler();                             // Call Scheduler()... may need to pick another proc.
    Loader(pcb[run_pid].trapframe_p);        // Loader(...).
-
 }
-

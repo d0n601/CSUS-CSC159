@@ -4,22 +4,29 @@
 #include "k-type.h"
 #include "k-data.h"
 
-// clear DRAM data block, zero-fill it
+
+/* Clear DRAM data block, zero-fill it */
 void Bzero(char *p, int bytes) {
    int c;
-   for(c = 0; c < Q_SIZE; c++) p[c] = (char)0;
+   for(c = 0; c < Q_SIZE; c++) p[c] = (char)0; // Use memset instead???
 }
 
-int QisEmpty(q_t *p) { // return 1 if empty, else 0
+
+/* Return 1 if empty, else 0 */
+int QisEmpty(q_t *p) { 
    return p->size == 0;
 }
 
-int QisFull(q_t *p) { // return 1 if full, else 0
+
+/* Return 1 if full, else 0 */
+int QisFull(q_t *p) { 
    return p->size == Q_SIZE;
 }
 
-// Dequeue, 1st # in queue; if queue empty, return -1
-// Move rest to front by a notch, set empty spaces -1
+
+/* Dequeue, 1st # in queue; if queue empty, return -1
+ * Move rest to front by a notch, set empty spaces -1
+*/
 int DeQ(q_t *p) { // return -1 if q[] is empty
 
    int i, x;
@@ -33,15 +40,13 @@ int DeQ(q_t *p) { // return -1 if q[] is empty
    for(i = 0; i < p->size-1; i++) p->q[i] = p->q[i+1];
    
    return x;
-
 }
 
 /* If not full, enqueue # to tail slot in queue. */
 void EnQ(int to_add, q_t *p) {
-   if(QisFull(p) cons_printf("Panic: queue is full, cannot EnQ!\n");
+   if(QisFull(p)) cons_printf("Panic: queue is full, cannot EnQ!\n");
    else {
       p->q[p->size] = to_add;
       p->size++;
    }
 }
-
