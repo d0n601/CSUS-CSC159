@@ -24,7 +24,7 @@ int DeQ(q_t *p) { // return -1 if q[] is empty
 
    int i, x;
 
-   if(p->size == 0) return -1;
+   if(QisEmpty(p)) return -1;
    
    x = p->q[0];
 
@@ -36,11 +36,9 @@ int DeQ(q_t *p) { // return -1 if q[] is empty
 
 }
 
-// If not full, enqueue # to tail slot in queue.
+/* If not full, enqueue # to tail slot in queue. */
 void EnQ(int to_add, q_t *p) {
-   if(p->size == Q_SIZE) {
-      cons_printf("Panic: queue is full, cannot EnQ!\n");
-   }
+   if(QisFull(p) cons_printf("Panic: queue is full, cannot EnQ!\n");
    else {
       p->q[p->size] = to_add;
       p->size++;

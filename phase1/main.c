@@ -1,7 +1,7 @@
 // main.c, 159
 // OS phase 1
 //
-// Team Name: IDKc (Members: )
+// Team Name: IDKc (Members: Ryan Kozak, Brad Harris)
 
 #include "k-include.h"  // SPEDE includes
 #include "k-entry.h"    // entries to kernel (TimerEntry, etc.)
