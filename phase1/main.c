@@ -21,6 +21,7 @@ struct i386_gate *intr_table;    // intr table's DRAM location
 /* init kernel data */
 void InitKernelData(void) {
 
+
     int i;
 
     intr_table = get_idt_base();            // get intr table location
@@ -29,9 +30,12 @@ void InitKernelData(void) {
     Bzero((char *) &pid_q, sizeof(q_t));
     Bzero((char *) &ready_q, sizeof(q_t));
 
-    for (i = 0; i < Q_SIZE; i++) EnQ(i, &pid_q);   // put all PID's to pid queue
+    printf("Loop start EnQ\n");
+
+    for (i = 0; i < Q_SIZE; i++) EnQ(i, &pid_q);
 
     run_pid = NONE;   //set run_pid to NONE
+
 }
 
 
