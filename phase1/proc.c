@@ -14,30 +14,30 @@ void Delay(void) {  // delay CPU for half second by 'inb $0x80'
 
 /* Show ch at row, col. */
 void ShowChar(int row, int col, char ch) {
-  unsigned short *p = VID_HOME + row + col;   // Upper-left corner of display.
+  unsigned short *p = VID_HOME + row*80 + col;   // Upper-left corner of display.
   *p = ch + VID_MASK;
   outportb(PIC_CONTROL, TIMER_DONE);
 }
 
 
+/* Initial Process 0. */
 void InitProc(void) {
-
   while(1) {
-      printf(".");//ShowChar(0, 0, '.');      // Show a dot at upper left corner on PC.
+      ShowChar(0, 0, '.');      // Show a dot at upper left corner on PC.
       Delay();                   // Wait for about half second.
-      printf("X");//ShowChar(0, 0, ' ');      // Erase dot.
+      ShowChar(0, 0, ' ');      // Erase dot.
       Delay();                   // Wait for about half second.
    }
-
 }
 
 
 void UserProc(void) {
    while(1) {
-      ShowChar(0, 0, (char)run_pid);       // Show 1st digit of my PID at row run_pid+1, 1st col // *vidmem +=1;
-      ShowChar(0, 0, (char)run_pid);       // Show 2nd digit of my PID at row run_pid+1, 2nd col // *vidmem +=1;
+      ShowChar(run_pid, 0, (run_pid/10)+48);
+      ShowChar(run_pid, 1, (run_pid % 10)+48);
       Delay();          // Wait for about half second.
-      // ????/ ShowChar();       // Erase above writing (one digit at a time).
-      Delay();          // Wait for about half second.
+      ShowChar(run_pid, 0, ' ');
+      ShowChar(run_pid, 1, ' ');
+      Delay();
    }
 }

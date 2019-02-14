@@ -20,15 +20,17 @@ void NewProcSR(func_p_t p) {  // arg: where process code starts
       return;//breakpoint();  // cannot continue
    }
 
-   pid = DeQ(&ready_q);                         // alloc PID (1st is 0)
-   Bzero((char *)&pcb[pid], PROC_STACK_SIZE);   // clear PCB
-   Bzero((char *)&proc_stack[pid], PROC_STACK_SIZE);   // clear stack
-   pcb[pid].state = RUN;                        // change process state
+   pid = DeQ(&ready_q);                                  // alloc PID (1st is 0)
+   Bzero((char *)&pcb[pid], sizeof(pcb_t));              // clear PCB
+   Bzero((char *)&proc_stack[pid][0], PROC_STACK_SIZE);     // clear stack
+   pcb[pid].state = READY;                                 // change process state
 
-   if(pid > 0) EnQ(pid, &ready_q);          // queue to ready_q if > 0
+   //if(pid > 0) EnQ(pid, &ready_q);                       // queue to ready_q if > 0
+
+    EnQ(pid, &ready_q);
 
    // point trapframe_p to stack & fill it out
-   pcb[pid].trapframe_p = (trapframe_t *)&proc_stack[pid][PROC_STACK_SIZE-sizeof(trapframe_t)]; // point to stack top
+   pcb[pid].trapframe_p = (trapframe_t *) &proc_stack[pid][PROC_STACK_SIZE - sizeof(trapframe_t)]; // point to stack top
    pcb[pid].trapframe_p--;                                    // lower by trapframe size
    pcb[pid].trapframe_p->efl = EF_DEFAULT_VALUE|EF_INTR;      // enables intr
    pcb[pid].trapframe_p->cs = get_cs();                      // dupl from CPU
@@ -44,7 +46,7 @@ void TimerSR(void) {
    pcb[run_pid].run_count++;             // Count up run_count.
    pcb[run_pid].total_count++;           // Count up total_count.
 
-   if(pcb[run_pid].run_count % TIME_SLICE == 0) {     // If runs long enough.
+   if(pcb[run_pid].run_count == TIME_SLICE) {     // If runs long enough.
       EnQ(run_pid, &ready_q);            // Move it to ready_q.
       pcb[run_pid].state = READY;       // Change its state.
       run_pid = NONE;                   // Running proc = NONE.

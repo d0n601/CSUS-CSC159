@@ -10,8 +10,8 @@ __BEGIN_DECLS
 
 #include "k-type.h"               // trapframe_t
 
-void TimerEntry(void);            // coded in k-entry.S, assembler won't like this syntax
-void Loader(trapframe_t *);       // coded in k-entry.S
+extern void TimerEntry(void);            // coded in k-entry.S, assembler won't like this syntax
+extern void Loader(trapframe_t *);       // coded in k-entry.S
 
 __END_DECLS
 

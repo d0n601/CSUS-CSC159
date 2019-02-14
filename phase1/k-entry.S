@@ -9,8 +9,8 @@
 
 // load proc trapframe to run it
 ENTRY(Loader)
-   mov 4(%esp), %ebx          // Copy 4 bytes from 4B above esp to ebx.
-   mov %ebx, %esp            // Copy ebx to esp (point esp to process trapframe).
+   movl 4(%esp), %ebx          // Copy 4 bytes from 4B above esp to ebx.
+   movl %ebx, %esp            // Copy ebx to esp (point esp to process trapframe).
    popa                     // Pop all (8) registers.
    iret                     // Return from interrupt.
 
@@ -22,7 +22,7 @@ ENTRY(TimerEntry)                        // will have efl, cs, eip pushed by har
    mov %ax, %ds                          // set kernel data segment registers
    mov %ax, %es                          // set kernel data segment registers
    leal k_stack + K_STACK_SIZE, %esp     // set esp to top of kernel stack
-   pushl %ebx                            // push ebx (onto the kernel stack)
+   push %ebx                            // push ebx (onto the kernel stack)
    cld                                   // clear the direction flag of efl
    call CNAME(Kernel)
 

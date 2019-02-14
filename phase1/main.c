@@ -29,7 +29,7 @@ void InitKernelData(void) {
     Bzero((char *) &pid_q, sizeof(q_t));
     Bzero((char *) &ready_q, sizeof(q_t));
 
-    for (i = 1; i < Q_SIZE; i++) EnQ(i, &pid_q);   // put all PID's to pid queue
+    for (i = 0; i < Q_SIZE; i++) EnQ(i, &pid_q);   // put all PID's to pid queue
 
     run_pid = NONE;   //set run_pid to NONE
 }
@@ -45,13 +45,11 @@ void InitKernelControl(void) {
 /* choose run_pid */
 void Scheduler(void) {
 
+    printf("Scheduler running\n");
+
     if(run_pid > 0) return; // OK/picked
 
-    // if ready_q is empty
-    if(QisEmpty(&ready_q)) {
-        run_pid = 0; //pick 0 as run_pid
-        InitProc();
-    }
+    if(QisEmpty(&ready_q)) run_pid = 0;
 
     else {
         pcb[0].state = READY;   // Change state of PID 0 to ready.
@@ -71,7 +69,11 @@ int main(void) {
     NewProcSR(InitProc);    // create InitProc  
     Scheduler();            // call Scheduler()
 
+    printf("Here comes the loader!\n");
+
     Loader(pcb[run_pid].trapframe_p);   // call Loader(pcb[run_pid].trapframe_p); load/run it
+
+    printf("I will never return!\n");
 
     return 0; // statement never reached, compiler asks it for syntax
 }
@@ -83,13 +85,20 @@ void Kernel(trapframe_t *trapframe_p) {
 
     pcb[run_pid].trapframe_p = trapframe_p; // Save it
 
+    printf("I'm in the Kernel\n");
+
     TimerSR();                              // Handle timer intr
 
    /* keyboard of target PC is pressed */
    if( cons_kbhit() ) {
        ch = cons_getchar();                 //  Read the key.
-       if(ch=='b')breakpoint();             // 'b' for breakpoint.
-       if(ch == 'n') NewProcSR(UserProc);   // 'n' for new process.
+       if(ch=='b') {
+        breakpoint();             // 'b' for breakpoint.
+      }
+       else if(ch == 'n') {
+        printf("Launching new process!\n");
+        NewProcSR(UserProc);   // 'n' for new process.
+     }
    }
 
    Scheduler();                             // Call Scheduler()... may need to pick another proc.
