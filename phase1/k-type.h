@@ -27,7 +27,7 @@ typedef struct {
 
 
 typedef struct {             // generic queue type
-  int size;                  // for a simple queue
+  int size, tail, head;      // for a simple queue
   int q[Q_SIZE];
 } q_t;
 
