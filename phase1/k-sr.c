@@ -22,8 +22,6 @@ void NewProcSR(func_p_t p) {  // arg: where process code starts
 
    pid = DeQ(&pid_q);                                  // alloc PID (1st is 0)
 
-  // printf("PID: %i", pid);
-
    Bzero((char *)&pcb[pid], sizeof(pcb_t));              // clear PCB
    Bzero((char *)&proc_stack[pid][0], PROC_STACK_SIZE);     // clear stack
 
