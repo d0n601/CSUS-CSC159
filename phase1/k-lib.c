@@ -8,19 +8,15 @@
 /* Clear DRAM data block, zero-fill it */
 void Bzero(char *p, int bytes) {
    int c;
-   for(c = 0; c < bytes; c++) (int)p[c] = (char *)0 ; // Use memset instead???
+   for(c = 0; c < bytes; c++) (int)p[c] = (char *)0;
 }
 
 
 /* Return 1 if empty, else 0 */
-int QisEmpty(q_t *p) { 
-   return p->tail == 0;
-}
+int QisEmpty(q_t *p) { return (p->tail == 0); }
 
 /* Return 1 if full, else 0 */
-int QisFull(q_t *p) { 
-   return p->size == Q_SIZE;
-}
+int QisFull(q_t *p) { return (p->tail == Q_SIZE); }
 
 
 /* Dequeue, 1st # in queue; if queue empty, return -1
@@ -28,25 +24,22 @@ int QisFull(q_t *p) {
 */
 int DeQ(q_t *p) { // return -1 if q[] is empty
 
-   int i, x;
+   int i, val;
 
-   if(QisEmpty(p)) return -1;
-
-   x = p->q[p->head];
-
-   p->size--;
-
-   for(i = 0; i < p->tail-2; i++) {
-
-      if(i < p->tail -1) {
-         p->q[i] = p->q[i+1];
-      }
-      else {
-         p->q[i] = NONE;
-      }
+   if(QisEmpty(p)){
+      printf("The Queue is empty!");
+      return -1;
    }
 
-   return x;
+   val = p->q[0];
+   p->tail--;
+
+   for(i=0;i<p->tail-1; i++)  p->q[i] = p->q[i+1];
+   for(i=p->tail; i < Q_SIZE; i++) p->q[i] = NONE;
+
+   p->q[p->tail] = -1;
+
+   return val;
 }
 
 /* If not full, enqueue # to tail slot in queue. */
@@ -55,9 +48,8 @@ void EnQ(int to_add, q_t *p) {
        cons_printf("Panic: queue is full, cannot EnQ!\n");
        return;
    }
-   else {
-      p->q[p->tail] = to_add;
-      p->size++;
-      p->tail++;
-   }
+
+   p->q[p->tail] = to_add;
+   p->tail++;
+   p->q[p->tail] = NONE;
 }

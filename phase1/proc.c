@@ -33,8 +33,8 @@ void InitProc(void) {
 
 void UserProc(void) {
    while(1) {
-      ShowChar(run_pid, 0, (run_pid/10)+48);
-      ShowChar(run_pid, 1, (run_pid % 10)+48);
+      ShowChar(run_pid, 0, (run_pid/10) + 48 );
+      ShowChar(run_pid, 1, (run_pid % 10) + 48);
       Delay();          // Wait for about half second.
       ShowChar(run_pid, 0, ' ');
       ShowChar(run_pid, 1, ' ');

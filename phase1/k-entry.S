@@ -16,7 +16,7 @@ ENTRY(Loader)
 
 // build proc trapframe, and go into kernel
 ENTRY(TimerEntry)                        // will have efl, cs, eip pushed by hardware
-   pusha                                 // push all (8) registers
+   pushal                                 // push all (8) registers
    movl %esp, %ebx                        // copy esp to ebx
    movw $0x10, %ax                       // set kernel data segment registers
    mov %ax, %ds                          // set kernel data segment registers

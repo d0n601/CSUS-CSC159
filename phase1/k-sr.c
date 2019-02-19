@@ -20,9 +20,13 @@ void NewProcSR(func_p_t p) {  // arg: where process code starts
       return;//breakpoint();  // cannot continue
    }
 
-   pid = DeQ(&ready_q);                                  // alloc PID (1st is 0)
+   pid = DeQ(&pid_q);                                  // alloc PID (1st is 0)
+
+  // printf("PID: %i", pid);
+
    Bzero((char *)&pcb[pid], sizeof(pcb_t));              // clear PCB
    Bzero((char *)&proc_stack[pid][0], PROC_STACK_SIZE);     // clear stack
+
    pcb[pid].state = READY;                                 // change process state
 
    if(pid > 0) EnQ(pid, &ready_q);                       // queue to ready_q if > 0

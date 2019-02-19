@@ -21,7 +21,6 @@ struct i386_gate *intr_table;    // intr table's DRAM location
 /* init kernel data */
 void InitKernelData(void) {
 
-
     int i;
 
     intr_table = get_idt_base();            // get intr table location
@@ -30,12 +29,9 @@ void InitKernelData(void) {
     Bzero((char *) &pid_q, sizeof(q_t));
     Bzero((char *) &ready_q, sizeof(q_t));
 
-    printf("Loop start EnQ\n");
-
     for (i = 0; i < Q_SIZE; i++) EnQ(i, &pid_q);
 
     run_pid = NONE;   //set run_pid to NONE
-
 }
 
 
@@ -48,8 +44,6 @@ void InitKernelControl(void) {
 
 /* choose run_pid */
 void Scheduler(void) {
-
-    printf("Scheduler running\n");
 
     if(run_pid > 0) return; // OK/picked
 
@@ -73,11 +67,7 @@ int main(void) {
     NewProcSR(InitProc);    // create InitProc  
     Scheduler();            // call Scheduler()
 
-    printf("Here comes the loader!\n");
-
     Loader(pcb[run_pid].trapframe_p);   // call Loader(pcb[run_pid].trapframe_p); load/run it
-
-    printf("I will never return!\n");
 
     return 0; // statement never reached, compiler asks it for syntax
 }
@@ -88,8 +78,6 @@ void Kernel(trapframe_t *trapframe_p) {
     char ch;
 
     pcb[run_pid].trapframe_p = trapframe_p; // Save it
-
-    printf("I'm in the Kernel\n");
 
     TimerSR();                              // Handle timer intr
 
