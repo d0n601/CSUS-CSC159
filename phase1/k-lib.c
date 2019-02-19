@@ -6,11 +6,7 @@
 
 
 /* Clear DRAM data block, zero-fill it */
-void Bzero(char *p, int bytes) {
-   int c;
-   for(c = 0; c < bytes; c++) (int)p[c] = (char *)0;
-}
-
+void Bzero(char *p, int bytes) { while(bytes--)*p++ = '\0'; }
 
 /* Return 1 if empty, else 0 */
 int QisEmpty(q_t *p) { return (p->tail == 0); }
@@ -34,10 +30,8 @@ int DeQ(q_t *p) { // return -1 if q[] is empty
    val = p->q[0];
    p->tail--;
 
-   for(i=0;i<p->tail-1; i++)  p->q[i] = p->q[i+1];
+   for(i= 0;i < p->tail; i++)  p->q[i] = p->q[i+1];
    for(i=p->tail; i < Q_SIZE; i++) p->q[i] = NONE;
-
-   p->q[p->tail] = -1;
 
    return val;
 }
@@ -48,7 +42,6 @@ void EnQ(int to_add, q_t *p) {
        cons_printf("Panic: queue is full, cannot EnQ!\n");
        return;
    }
-
    p->q[p->tail] = to_add;
    p->tail++;
    p->q[p->tail] = NONE;

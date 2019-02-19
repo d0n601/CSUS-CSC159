@@ -84,13 +84,8 @@ void Kernel(trapframe_t *trapframe_p) {
    /* keyboard of target PC is pressed */
    if( cons_kbhit() ) {
        ch = cons_getchar();                 //  Read the key.
-       if(ch=='b') {
-        breakpoint();             // 'b' for breakpoint.
-      }
-       else if(ch == 'n') {
-        printf("Launching new process!\n");
-        NewProcSR(UserProc);   // 'n' for new process.
-     }
+       if(ch=='b') breakpoint();             // 'b' for breakpoint.
+       else if(ch == 'n') NewProcSR(UserProc);   // 'n' for new process.
    }
 
    Scheduler();                             // Call Scheduler()... may need to pick another proc.
