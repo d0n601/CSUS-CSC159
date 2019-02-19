@@ -8,7 +8,7 @@
 
 void Delay(void) {  // delay CPU for half second by 'inb $0x80'
    int i;
-   for(i = 0; i < LOOP/2; i++) asm("inb $0x80"); // each inb delays CPU .6 microsecond
+   for(i = 0; i < LOOP/2; i++) asm("inb $0x80"); // each inb delays CPU .6 microsecond.
 }
 
 
@@ -30,13 +30,15 @@ void InitProc(void) {
 }
 
 
+/* User Processes. */
 void UserProc(void) {
-   while(1) {
-      ShowChar(run_pid+1, 0, (run_pid/10) + 48 );
-      ShowChar(run_pid+1, 1, (run_pid % 10) + 48);
-      Delay();          // Wait for about half second.
-      ShowChar(run_pid+1, 0, ' ');
-      ShowChar(run_pid+1, 1, ' ');
-      Delay();
+    int i;
+    while(1) {
+        ShowChar(run_pid, 0, (run_pid/10) + 48 );
+        ShowChar(run_pid, 1, (run_pid % 10) + 48);
+        Delay();
+        ShowChar(run_pid, 0, ' ');
+        ShowChar(run_pid, 1, ' ');
+        Delay();
    }
 }
