@@ -16,7 +16,6 @@ void Delay(void) {  // delay CPU for half second by 'inb $0x80'
 void ShowChar(int row, int col, char ch) {
   unsigned short *p = VID_HOME + row*80 + col;   // Upper-left corner of display.
   *p = ch + VID_MASK;
-  outportb(PIC_CONTROL, TIMER_DONE);
 }
 
 
@@ -33,11 +32,11 @@ void InitProc(void) {
 
 void UserProc(void) {
    while(1) {
-      ShowChar(run_pid, 0, (run_pid/10) + 48 );
-      ShowChar(run_pid, 1, (run_pid % 10) + 48);
+      ShowChar(run_pid+1, 0, (run_pid/10) + 48 );
+      ShowChar(run_pid+1, 1, (run_pid % 10) + 48);
       Delay();          // Wait for about half second.
-      ShowChar(run_pid, 0, ' ');
-      ShowChar(run_pid, 1, ' ');
+      ShowChar(run_pid+1, 0, ' ');
+      ShowChar(run_pid+1, 1, ' ');
       Delay();
    }
 }
