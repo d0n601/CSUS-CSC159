@@ -5,10 +5,10 @@
 #include "k-const.h"
 #include "k-data.h"
 
-
+/* Slowed down bit more for my VM. */
 void Delay(void) {  // delay CPU for half second by 'inb $0x80'
    int i;
-   for(i = 0; i < LOOP/2; i++) asm("inb $0x80"); // each inb delays CPU .6 microsecond.
+   for(i = 0; i < LOOP/4; i++) asm("inb $0x80"); // each inb delays CPU .6 microsecond.
 }
 
 
