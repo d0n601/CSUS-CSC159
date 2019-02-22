@@ -19,4 +19,11 @@
 #define VID_MASK 0x0f00     // foreground bright white, background black
 #define VID_HOME (unsigned short *)0xb8000 // home position, upper-left corner
 
+
+/* Phase 2 constants,  (in intr_table, starting 48 is for kernel services) */
+#define GETPID_CALL 48
+#define SHOWCHAR_CALL 49
+#define SLEEP_CALL 50
+
+
 #endif
