@@ -29,7 +29,9 @@ void InitKernelData(void) {
     Bzero((char *) &pid_q, sizeof(q_t));
     Bzero((char *) &ready_q, sizeof(q_t));
 
-    for (i = 0; i < Q_SIZE; i++) EnQ(i, &pid_q);
+    for (i = 0; i < Q_SIZE; i++) {
+        EnQ(i, &pid_q);
+    }
 
     run_pid = NONE;   //set run_pid to NONE
 }
