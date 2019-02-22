@@ -15,15 +15,26 @@ ENTRY(Loader) // loads proc trapframe to run it
    add $4, %esp // (add $4 to %esp -- skip 'entry_id' in trapframe) <-- !!!
    iret
 
+
 ENTRY(TimerEntry)
    pushl $TIMER_INTR
    jmp PreKernel
 
+
 ENTRY(GetPidEntry)
-   pushl $GETPIDCALL
+   pushl $GETPID_CALL
    jmp PreKernel
 
-... add two more entries like above...
+
+ENTRY(SleepEntry)
+   pushl $SLEEP_CALL
+   jmp PreKernel
+
+
+ENTRY(ShowCharEntry)
+   pushl $SHOWCHAR_CALL
+   jmp PreKernel
+
 
 PreKernel: // build rest of trapframe, switch stack, pass arg, call Kernel
    pusha   // push all: eax ecx edx ebx esp ebp esi edi
