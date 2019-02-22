@@ -1,5 +1,5 @@
 // main.c, 159
-// OS phase 1
+// OS phase 2
 //
 // Team Name: IDKc (Members: Ryan Kozak, Brad Harris)
 
@@ -10,24 +10,29 @@
 #include "k-sr.h"       // kernel service routines
 #include "proc.h"       // all user process code here
 
-// kernel data are all here:
+// Kernel data are all here:
 int run_pid;                        // current running PID; if -1, none selected
-q_t pid_q, ready_q;                 // avail PID and those created/ready to run
+int sys_centi_sec;                  // system time in centi-sec, initialize it 0
+q_t pid_q, ready_q, sleep_q;        // avail PID and those created/ready to run
 pcb_t pcb[PROC_SIZE];               // Process Control Blocks
 char proc_stack[PROC_SIZE][PROC_STACK_SIZE];   // process runtime stacks
 struct i386_gate *intr_table;    // intr table's DRAM location
 
 
-/* init kernel data */
+/* Init kernel data */
 void InitKernelData(void) {
 
     int i;
 
-    intr_table = get_idt_base();            // get intr table location
+    intr_table = get_idt_base();            // Get intr table location.
 
-    /* clear 2 queues */
+    sys_centi_sec = 0;
+
+    /* Clear all 3 queues. */
     Bzero((char *) &pid_q, sizeof(q_t));
     Bzero((char *) &ready_q, sizeof(q_t));
+    Bzero((char *) &sleep_q, sizeof(q_t));
+
 
     for (i = 0; i < Q_SIZE; i++) {
         EnQ(i, &pid_q);
@@ -40,6 +45,9 @@ void InitKernelData(void) {
 /* init kernel control */
 void InitKernelControl(void) {
     fill_gate(&intr_table[TIMER_INTR], (int)TimerEntry, get_cs(), ACC_INTR_GATE, 0); // fill out intr table for timer
+    fill_gate(&intr_table[GETPID_CALL], (int)GetPidEntry, get_cs(), ACC_INTR_GATE, 0);
+    fill_gate(&intr_table[SHOWCHAR_CALL], (int)ShowCharEntry, get_cs(), ACC_INTR_GATE, 0);
+    fill_gate(&intr_table[SLEEP_CALL], (int)SleepEntry, get_cs(), ACC_INTR_GATE, 0);
     outportb(PIC_MASK, MASK);   // mask out PIC for timer
 }
 
