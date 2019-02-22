@@ -33,7 +33,7 @@ void NewProcSR(func_p_t p) {  // arg: where process code starts
    pcb[pid].trapframe_p = (trapframe_t *) &proc_stack[pid][PROC_STACK_SIZE - sizeof(trapframe_t)]; // point to stack top
    pcb[pid].trapframe_p->efl = EF_DEFAULT_VALUE|EF_INTR;      // enables intr
    pcb[pid].trapframe_p->cs = get_cs();                      // dupl from CPU
-   pcb[pid].trapframe_p->eip = (unsigned int)p;                        // set to code
+   pcb[pid].trapframe_p->eip = (unsigned int)p;              // set to code
 }
 
 
