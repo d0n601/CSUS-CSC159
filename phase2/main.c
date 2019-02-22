@@ -12,7 +12,8 @@
 
 // kernel data are all here:
 int run_pid;                        // current running PID; if -1, none selected
-q_t pid_q, ready_q;                 // avail PID and those created/ready to run
+int sys_centi_sec;                  // system time in centi-sec, initialize it 0
+q_t pid_q, ready_q, sleep_q;        // avail PID and those created/ready to run
 pcb_t pcb[PROC_SIZE];               // Process Control Blocks
 char proc_stack[PROC_SIZE][PROC_STACK_SIZE];   // process runtime stacks
 struct i386_gate *intr_table;    // intr table's DRAM location
