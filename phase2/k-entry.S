@@ -12,7 +12,7 @@ ENTRY(Loader) // loads proc trapframe to run it
    movl 4(%esp), %ebx
    movl %ebx, %esp
    popa
-   incr esp by 4 (add $4 to %esp -- skip 'entry_id' in trapframe) <-- !!!
+   add $4, %esp // (add $4 to %esp -- skip 'entry_id' in trapframe) <-- !!!
    iret
 
 ENTRY(TimerEntry)
