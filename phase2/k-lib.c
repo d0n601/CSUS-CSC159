@@ -10,7 +10,7 @@ void Bzero(char *p, int bytes) {
    if (bytes > 0) {
       do {
          *p++ = '\0';
-      } while(bytes--)
+      } while (--bytes);
    }
 }
 
