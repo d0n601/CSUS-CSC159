@@ -8,21 +8,30 @@
 .text
 
 // load proc trapframe to run it
-ENTRY(Loader)
-   movl 4(%esp), %ebx          // Copy 4 bytes from 4B above esp to ebx.
-   movl %ebx, %esp            // Copy ebx to esp (point esp to process trapframe).
-   popa                     // Pop all (8) registers.
-   iret                     // Return from interrupt.
+ENTRY(Loader) // loads proc trapframe to run it
+   movl 4(%esp), %ebx
+   movl %ebx, %esp
+   popa
+   incr esp by 4 (add $4 to %esp -- skip 'entry_id' in trapframe) <-- !!!
+   iret
 
-// build proc trapframe, and go into kernel
-ENTRY(TimerEntry)                        // will have efl, cs, eip pushed by hardware
-   pushal                                 // push all (8) registers
-   movl %esp, %ebx                        // copy esp to ebx
-   movw $0x10, %ax                       // set kernel data segment registers
-   mov %ax, %ds                          // set kernel data segment registers
-   mov %ax, %es                          // set kernel data segment registers
-   leal k_stack + K_STACK_SIZE, %esp     // set esp to top of kernel stack
-   push %ebx                            // push ebx (onto the kernel stack)
-   cld                                   // clear the direction flag of efl
-   call CNAME(Kernel)
+ENTRY(TimerEntry)
+   pushl $TIMER_INTR
+   jmp PreKernel
 
+ENTRY(GetPidEntry)
+   pushl $GETPIDCALL
+   jmp PreKernel
+
+... add two more entries like above...
+
+PreKernel: // build rest of trapframe, switch stack, pass arg, call Kernel
+   pusha   // push all: eax ecx edx ebx esp ebp esi edi
+   movl %esp, %ebx          // copy esp
+   movw $0x10, %ax          // put 16 to ax
+   mov %ax, %ds             // set kernel data segment registers ds
+   mov %ax, %es             // set kernel data segment registers es
+   leal k_stack + K_STACK_SIZE, %esp  // set esp to top of kernel stack
+   pushl %ebx               // push (proc TF addr) there
+   cld                      // clear direction flag bit
+   call CNAME(Kernel)       // call Kernel code
