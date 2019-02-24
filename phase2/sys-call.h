@@ -2,7 +2,13 @@
 // Created by Brad Harris on 2019-02-22.
 //
 
-#ifndef CSUS_CSC159_SYS_CALL_H
-#define CSUS_CSC159_SYS_CALL_H
+#ifndef _SYS_CALL_
+#define _SYS_CALL_
 
-#endif //CSUS_CSC159_SYS_CALL_H
+
+int GetPidCall(void);
+void ShowCharCall(int, int, char);
+void SleepCall(int);
+
+
+#endif //_SYS_CALL_
