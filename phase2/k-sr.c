@@ -89,7 +89,7 @@ int GetPidSR(void) { return run_pid; }
 
 
 /* Show ch at row, col. */
-void ShowChar(int row, int col, char ch) {
+void ShowCharSR(int row, int col, char ch) {
     unsigned short *p = VID_HOME + row*80 + col;   // Upper-left corner of display.
     *p = ch + VID_MASK;
 }
