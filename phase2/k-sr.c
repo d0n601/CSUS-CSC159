@@ -39,12 +39,26 @@ void NewProcSR(func_p_t p) {  // arg: where process code starts
 
 /* New subroutine to add to k-sr.c (preferrably before TimerSR): */
 void CheckWakeProc(void) {
-    // see how many proc are there in sleep_q
-    // loop for that many times:
-    // 1. dequeue sleep_q to get a PID
-   // 2. using the PID to check if its wake time is up?
-   // 2a. yes: add PID to ready_q, alter its proc state
-   // 2b. no: enqueue PID back to sleep_q
+
+    int i,l, p_id;
+
+    l = sleep_q.tail;   // See how many proc are there in sleep_q.
+
+    /* loop for that many times */
+    for(i = 0; i < l; i++) {
+
+        p_id = DeQ(&sleep_q);    // Dequeue sleep_q to get PID.
+
+        /* Using the PID to check if its wake time is up? */
+        if(pcb[p_id].wake_centi_sec <= sys_centi_sec) {
+            pcb[p_id].state = READY;        // Alter PID's proc state.
+            EnQ(p_id, &ready_q);            // Add PID to ready_q.
+        }
+        else {
+            EnQ(slp_pid, &sleep_q);  // No: enqueue PID back to sleep_q.
+        }
+    }
+
 }
 
 
