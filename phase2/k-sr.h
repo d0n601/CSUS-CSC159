@@ -9,6 +9,10 @@
 #include "k-lib.h"
 
 extern void NewProcSR(func_p_t p);
-void TimerSR(void);
+extern void TimerSR(void);
+extern void CheckWakeProc(void);
+extern int GetPidSR(void);
+extern void ShowCharSR(int, int, char);
+extern void SleepSR(int);
 
 #endif
