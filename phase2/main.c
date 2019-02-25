@@ -89,7 +89,23 @@ void Kernel(trapframe_t *trapframe_p) {
 
     pcb[run_pid].trapframe_p = trapframe_p; // Save it
 
-    TimerSR();                              // Handle timer intr
+    /* Use a "switch(trapframe_p->entry_id)" to call the respective SR, each SR */
+    switch(trapframe_p->entry_id) {
+        case TIMER_INTR:
+            TimerSR();
+            break;
+        case SHOWCHAR_CALL:
+            ShowCharSR(trapframe_p->eax, trapframe_p->ebx, trapframe_p->ecx);
+            break;
+        case GETPID_CALL:
+            trapframe_p->eax = GetPidSR();
+            break;
+        case SLEEP_CALL:
+            SleepSR(trapframe_p->eax);
+            break;
+        default:
+            breakpoint();
+    }
 
    /* keyboard of target PC is pressed */
    if( cons_kbhit() ) {
