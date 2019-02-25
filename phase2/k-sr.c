@@ -37,18 +37,53 @@ void NewProcSR(func_p_t p) {  // arg: where process code starts
 }
 
 
-/* count run_count and switch if hitting time slice */
+/* New subroutine to add to k-sr.c (preferrably before TimerSR): */
+void CheckWakeProc(void) {
+    // see how many proc are there in sleep_q
+    // loop for that many times:
+    // 1. dequeue sleep_q to get a PID
+   // 2. using the PID to check if its wake time is up?
+   // 2a. yes: add PID to ready_q, alter its proc state
+   // 2b. no: enqueue PID back to sleep_q
+}
+
+
+
+/* THIS NEEDS TO BE UPDATED count run_count and switch if hitting time slice */
 void TimerSR(void) {
 
-   outportb(PIC_CONTROL, TIMER_DONE);    // Notify PIC timer done.
+    outportb(PIC_CONTROL, TIMER_DONE);    // Notify PIC timer done.
 
-   pcb[run_pid].run_count++;             // Count up run_count.
-   pcb[run_pid].total_count++;           // Count up total_count.
+    sys_centi_sec++;                      // Upcount sys_centi_sec.
+    CheckWakeProc();                      // Call a new subroutine.
 
-   if(pcb[run_pid].run_count == TIME_SLICE) {     // If runs long enough.
+    if(!run_pid) return;                  // If run_pid is 0, just return here
+
+    pcb[run_pid].run_count++;             // Count up run_count.
+    pcb[run_pid].total_count++;           // Count up total_count.
+
+    if(pcb[run_pid].run_count == TIME_SLICE) {     // If runs long enough.
       EnQ(run_pid, &ready_q);            // Move it to ready_q.
       pcb[run_pid].state = READY;       // Change its state.
       run_pid = NONE;                   // Running proc = NONE.
    }
+}
+
+
+/* Return id of running process. */
+int GetPidSR(void) { return run_pid; }
+
+
+/* Show ch at row, col. */
+void ShowChar(int row, int col, char ch) {
+    unsigned short *p = VID_HOME + row*80 + col;   // Upper-left corner of display.
+    *p = ch + VID_MASK;
+}
+
+void SleepSR(int centi_sec) {
+    pcb[run_pid].wake_centi_sec = sys_centi_sec + centi_sec;
+    pcb[run_pid].state = SLEEP;
+    EnQ(run_pid, &sleep_q);
+    run_pid = NONE;
 }
 
