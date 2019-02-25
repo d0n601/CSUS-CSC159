@@ -42,7 +42,7 @@ void CheckWakeProc(void) {
 
     int i,l, p_id;
 
-    l = sleep_q.tail;   // See how many proc are there in sleep_q.
+    l = sleep_q.size;   // See how many proc are there in sleep_q.
 
     /* loop for that many times */
     for(i = 0; i < l; i++) {
@@ -55,7 +55,7 @@ void CheckWakeProc(void) {
             EnQ(p_id, &ready_q);            // Add PID to ready_q.
         }
         else {
-            EnQ(slp_pid, &sleep_q);  // No: enqueue PID back to sleep_q.
+            EnQ(p_id, &sleep_q);  // No: enqueue PID back to sleep_q.
         }
     }
 
