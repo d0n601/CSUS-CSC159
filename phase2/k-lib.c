@@ -30,7 +30,7 @@ int DeQ(q_t *p) { // return -1 if q[] is empty
 
    if(QisEmpty(p)){
       printf("The Queue is empty!");
-      return NONE;
+      return NONE; //    Notes from phaes1: use NONE (for -1)
    }
 
    ret_val = p->q[0];
@@ -39,7 +39,6 @@ int DeQ(q_t *p) { // return -1 if q[] is empty
    for(i = 0; i < p->size; i++) {
       p->q[i] = p->q[i+1];
    }
-
    return ret_val;
 }
 
@@ -50,5 +49,9 @@ void EnQ(int to_add, q_t *p) {
        return;
    }
    p->q[p->size] = to_add;
-   p->size++;
+
+
+   if(!QisFull(p)) p->size++; // q[tail] = NONE will segfault if tail has just become 20 (full queue)
+
+
 }
