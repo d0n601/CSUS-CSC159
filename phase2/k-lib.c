@@ -48,10 +48,9 @@ void EnQ(int to_add, q_t *p) {
        cons_printf("Panic: queue is full, cannot EnQ!\n");
        return;
    }
-   p->q[p->size] = to_add;
 
+   if(p->q[p->size] < Q_SIZE) p->q[p->size] = to_add; // q[tail] = NONE will segfault if tail has just become 20 (full queue)
 
-   if(!QisFull(p)) p->size++; // q[tail] = NONE will segfault if tail has just become 20 (full queue)
-
+   p->size++;
 
 }
