@@ -30,7 +30,7 @@ int DeQ(q_t *p) { // return -1 if q[] is empty
 
    if(QisEmpty(p)){
       printf("The Queue is empty!");
-      return -1;
+      return NONE;
    }
 
    ret_val = p->q[0];
