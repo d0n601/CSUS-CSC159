@@ -22,10 +22,10 @@ void UserProc(void) {
     while(1) {
         ShowCharCall(my_pid, 0, '0' + my_pid / 10);  // show my PID
         ShowCharCall(my_pid, 1, '0' + my_pid % 10);
-        SleepCall(50);                              // sleep .5 sec
+        SleepCall(500);                              // sleep .5 sec
 
         ShowCharCall(my_pid, 0, ' ');                // erasure
         ShowCharCall(my_pid, 1, ' ');
-        SleepCall(50);
+        SleepCall(500);
     }
 }

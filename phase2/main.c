@@ -23,10 +23,8 @@ struct i386_gate *intr_table;    // intr table's DRAM location
 void InitKernelData(void) {
 
     int i;
-
-    intr_table = get_idt_base();            // Get intr table location.
-
     sys_centi_sec = 0;
+    intr_table = get_idt_base();            // Get intr table location.
 
     /* Clear all 3 queues. */
     Bzero((char *) &pid_q, sizeof(q_t));
@@ -94,11 +92,11 @@ void Kernel(trapframe_t *trapframe_p) {
         case TIMER_INTR:
             TimerSR();
             break;
-        case SHOWCHAR_CALL:
-            ShowCharSR(trapframe_p->eax, trapframe_p->ebx, trapframe_p->ecx);
-            break;
         case GETPID_CALL:
             trapframe_p->eax = GetPidSR();
+            break;
+        case SHOWCHAR_CALL:
+            ShowCharSR(trapframe_p->eax, trapframe_p->ebx, trapframe_p->ecx);
             break;
         case SLEEP_CALL:
             SleepSR(trapframe_p->eax);

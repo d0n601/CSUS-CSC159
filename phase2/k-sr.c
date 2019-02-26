@@ -63,12 +63,13 @@ void CheckWakeProc(void) {
 
 
 
-/* THIS NEEDS TO BE UPDATED count run_count and switch if hitting time slice */
+/* Count run_count and switch if hitting time slice */
 void TimerSR(void) {
 
     outportb(PIC_CONTROL, TIMER_DONE);    // Notify PIC timer done.
 
     sys_centi_sec++;                      // Upcount sys_centi_sec.
+
     CheckWakeProc();                      // Call a new subroutine.
 
     if(!run_pid) return;                  // If run_pid is 0, just return here
