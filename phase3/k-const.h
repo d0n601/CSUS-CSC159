@@ -20,10 +20,18 @@
 #define VID_HOME (unsigned short *)0xb8000 // home position, upper-left corner
 
 
-/* Phase 2 constants,  (in intr_table, starting 48 is for kernel services) */
+/* Phase 2 constants,  (in intr_table, starting 48 is for kernel services). */
 #define GETPID_CALL 48
 #define SHOWCHAR_CALL 49
 #define SLEEP_CALL 50
 
+/* Phase 3 constants. */
+#define MUX_CREATE_CALL 51
+#define MUX_OP_CALL 52
+#define MUX_SIZE 20
+#define STR_SIZE 101
+#define LOCK 1
+#define UNLOCK 2
+#define STDOUT 1
 
 #endif

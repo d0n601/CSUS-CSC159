@@ -37,3 +37,29 @@ void SleepCall(int centi_sec) {  // # of 1/100 of a second to sleep
 }
 
 
+int MuxCreate(int flag){
+    asm("");
+}
+
+
+void MuxOpCall(int mux_id, int opcode) {
+    asm("");
+}
+
+
+void WriteCall(int device, char *str) { // composed differently
+   /* get my PID by a service call
+    calc my row number
+    column is zero to begin with
+    if device is STDOUT {
+            while what str points to is not a null character {
+                Use an existing service call to show this character, at row and column
+                increment the str pointer and the column position
+            }
+    }*/
+}
+
+
+
+
+

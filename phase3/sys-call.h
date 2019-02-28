@@ -9,6 +9,9 @@
 int GetPidCall(void);
 void ShowCharCall(int, int, char);
 void SleepCall(int);
+int MuxCreateCall(int);
+void MuxOpCall(int, int);
+void WriteCall(int, char);
 
 
 #endif //_SYS_CALL_
