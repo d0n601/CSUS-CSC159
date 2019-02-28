@@ -8,10 +8,10 @@
 void InitProc(void) {
     int i;
     while(1) {
-        ShowCharCall(0, 0, '.');
+        ShowCharCall(0, 0, '.'); // THIS PROBLY NEEDS TO BE MuxOpCall(vid_mux, LOCK);
         for(i=0; i<LOOP/2; i++) asm("inb $0x80");   // this is also a kernel service
 
-        ShowCharCall(0, 0, ' ');
+        ShowCharCall(0, 0, ' '); // THIS PROBLY NEEDS TO BE MuxOpCall(vid_mux, LOCK);
         for(i=0; i<LOOP/2; i++) asm("inb $0x80");   // this is also a kernel service
     }
 }
@@ -19,13 +19,18 @@ void InitProc(void) {
 void UserProc(void) {
     int my_pid = GetPidCall();  // get my PID
 
-    while(1) {
-        ShowCharCall(my_pid, 0, '0' + my_pid / 10);  // show my PID
-        ShowCharCall(my_pid, 1, '0' + my_pid % 10);
-        SleepCall(500);                              // sleep .5 sec
+    char str1[] = "PID xx is running, no body else is using video?";
+    char str2[] = "                                               ";
 
-        ShowCharCall(my_pid, 0, ' ');                // erasure
-        ShowCharCall(my_pid, 1, ' ');
+    str1[4] = '0' + my_pid / 10;
+    str1[5] = '0' + my_pid % 10;
+
+    while(1) {
+        MuxOpCall(vid_mux, LOCK);
+        WriteCall(STDOUT, str1);
         SleepCall(500);
+        WriteCall(STDOUT, str1);
+        SleepCall(500);
+        MuxOpCall(vid_mux, UNLOCK);
     }
 }
