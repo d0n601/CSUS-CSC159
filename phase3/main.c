@@ -11,9 +11,9 @@
 #include "proc.h"       // all user process code here
 
 // Kernel data are all here:
-int run_pid;                        // current running PID; if -1, none selected
-int sys_centi_sec;                  // system time in centi-sec, initialize it 0
-q_t pid_q, ready_q, sleep_q;        // avail PID and those created/ready to run
+int run_pid;                          // current running PID; if -1, none selected
+int sys_centi_sec;                    // system time in centi-sec, initialize it 0
+q_t pid_q, ready_q, sleep_q, mux_q;   // avail PID and those created/ready to run
 pcb_t pcb[PROC_SIZE];               // Process Control Blocks
 char proc_stack[PROC_SIZE][PROC_STACK_SIZE];   // process runtime stacks
 struct i386_gate *intr_table;    // intr table's DRAM location
@@ -26,15 +26,14 @@ void InitKernelData(void) {
     sys_centi_sec = 0;
     intr_table = get_idt_base();            // Get intr table location.
 
-    /* Clear all 3 queues. */
+    /* Clear all queues. */
     Bzero((char *) &pid_q, sizeof(q_t));
     Bzero((char *) &ready_q, sizeof(q_t));
     Bzero((char *) &sleep_q, sizeof(q_t));
+    Bzero((char *) &mux_q, sizeof(q_t));
 
-
-    for (i = 0; i < Q_SIZE; i++) {
-        EnQ(i, &pid_q);
-    }
+    for (i = 0; i < Q_SIZE; i++) EnQ(i, &pid_q);
+    for (i = 0; i < MUX_SIZE; i++) EnQ(i, &mux_q);
 
     run_pid = NONE;   //set run_pid to NONE
 }
@@ -46,6 +45,8 @@ void InitKernelControl(void) {
     fill_gate(&intr_table[GETPID_CALL], (int)GetPidEntry, get_cs(), ACC_INTR_GATE, 0);
     fill_gate(&intr_table[SHOWCHAR_CALL], (int)ShowCharEntry, get_cs(), ACC_INTR_GATE, 0);
     fill_gate(&intr_table[SLEEP_CALL], (int)SleepEntry, get_cs(), ACC_INTR_GATE, 0);
+    fill_gate(&intr_table[MUX_CREATE_CALL], (int)MuxCreateEntry, get_cs(), ACC_INTR_GATE, 0);
+    fill_gate(&intr_table[MUX_OP_CALL], (int)MuxOpEntry, get_cs(), ACC_INTR_GATE, 0);
     outportb(PIC_MASK, MASK);   // mask out PIC for timer
 }
 
@@ -100,6 +101,12 @@ void Kernel(trapframe_t *trapframe_p) {
             break;
         case SLEEP_CALL:
             SleepSR(trapframe_p->eax);
+            break;
+        case MUX_CREATE_CALL:
+            //SleepSR(trapframe_p->eax);
+            break;
+        case MUX_OP_CALL:
+            //SleepSR(trapframe_p->eax);
             break;
         default:
             breakpoint();
