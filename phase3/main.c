@@ -103,10 +103,10 @@ void Kernel(trapframe_t *trapframe_p) {
             SleepSR(trapframe_p->eax);
             break;
         case MUX_CREATE_CALL:
-            //SleepSR(trapframe_p->eax);
+            MuxCreateSR(trapframe_p->eax);
             break;
         case MUX_OP_CALL:
-            //SleepSR(trapframe_p->eax);
+            MuxOpSR(trapframe_p->eax, trapframe_p->ebx);
             break;
         default:
             breakpoint();

@@ -103,5 +103,11 @@ void SleepSR(int centi_sec) {
 }
 
 
+int MuxCreateSR(int flag) {
+    //details described in 3.html
+}
 
+int MuxOpSR(int mux_id, int opcode) {
+    //details described in 3.html
+}
 
