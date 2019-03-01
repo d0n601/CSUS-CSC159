@@ -7,11 +7,18 @@
 
 typedef void (*func_p_t)(void); // void-return function pointer type
 
-typedef enum {UNUSED, READY, RUN, SLEEP} state_t;
+typedef enum {UNUSED, READY, RUN, SLEEP, SUSPEND} state_t;
 
 typedef struct {
     unsigned int edi, esi, ebp, esp, ebx, edx, ecx, eax, entry_id, eip, cs, efl;
 } trapframe_t;
+
+
+typedef struct {
+    int flag;          // max # of processes to enter
+    int creater;       // requester/owning PID
+    q_t suspend_q;     // suspended PID's
+} mux_t;
 
 
 typedef struct {
