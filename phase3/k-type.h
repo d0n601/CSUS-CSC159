@@ -13,14 +13,6 @@ typedef struct {
     unsigned int edi, esi, ebp, esp, ebx, edx, ecx, eax, entry_id, eip, cs, efl;
 } trapframe_t;
 
-
-typedef struct {
-    int flag;          // max # of processes to enter
-    int creater;       // requester/owning PID
-    q_t suspend_q;     // suspended PID's
-} mux_t;
-
-
 typedef struct {
     state_t state;              // a process state: UNUSED, READY, RUN, or SLEEP.
     int wake_centi_sec;
@@ -29,13 +21,17 @@ typedef struct {
     trapframe_t *trapframe_p;   // location of the CPU context in the process stack.
 } pcb_t;
 
-
-
 typedef struct {       // generic queue type
   int size;            // for a simple queue
   int q[Q_SIZE];
 } q_t;
 
+
+typedef struct {
+    int flag;          // max # of processes to enter
+    int creater;       // requester/owning PID
+    q_t suspend_q;     // suspended PID's
+} mux_t;
 
 
 #endif

@@ -37,28 +37,43 @@ void SleepCall(int centi_sec) {  // # of 1/100 of a second to sleep
 }
 
 
-int MuxCreate(int flag){
-    asm("");
+int MuxCreateCall(int flag){
+    int mux_id;
+    asm("movl %2, %%eax;
+        int %1;
+        movl %%eax, %0"
+        : "=g"(mux_id)
+        : "g"(MUX_CREATE_CALL), "g"(flag)
+        : "eax"
+    );
+    return mux_id;
 }
 
 
 void MuxOpCall(int mux_id, int opcode) {
-    asm("");
+    asm("movl %0, %%eax;
+        movl %1, %%ebx;
+        int %2"
+        :                       // no output
+        : "g" (mux_id), "g"(opcode), "g"(MUX_OP_CALL) // input
+        : "eax", "ebx"
+    );
 }
 
 
-void WriteCall(int device, char *str) { // composed differently
-   /* get my PID by a service call
-    calc my row number
-    column is zero to begin with
-    if device is STDOUT {
-            while what str points to is not a null character {
-                Use an existing service call to show this character, at row and column
-                increment the str pointer and the column position
-            }
-    }*/
-}
+void WriteCall(int device, char *str) {
+    int x = GetPidCall();
+    int y = 0;
 
+    if(device ==  STDOUT) {
+        while(*str != '\0') {
+            ShowCharCall(x, y, *str);
+            str++;
+            y++;
+        }
+    }
+
+}
 
 
 

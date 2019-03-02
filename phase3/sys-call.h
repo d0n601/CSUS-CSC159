@@ -6,12 +6,12 @@
 #define _SYS_CALL_
 
 
-int GetPidCall(void);
-void ShowCharCall(int, int, char);
-void SleepCall(int);
-int MuxCreateCall(int);
-void MuxOpCall(int, int);
-void WriteCall(int, char);
+extern int GetPidCall(void);
+extern void ShowCharCall(int, int, char);
+extern void SleepCall(int);
+extern int MuxCreateCall(int);
+extern void MuxOpCall(int, int);
+extern void WriteCall(int, char *);
 
 
 #endif //_SYS_CALL_

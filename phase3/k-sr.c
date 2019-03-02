@@ -17,7 +17,7 @@ void NewProcSR(func_p_t p) {  // arg: where process code starts
 
    if( QisEmpty(&pid_q) ) {     // May occur if too many been created.
       cons_printf("Panic: no more process!\n");
-      return;//breakpoint();  // cannot continue
+      breakpoint();  // cannot continue
    }
 
    pid = DeQ(&pid_q);                                  // alloc PID (1st is 0)
@@ -104,10 +104,51 @@ void SleepSR(int centi_sec) {
 
 
 int MuxCreateSR(int flag) {
-    //details described in 3.html
+
+    int mux_id;
+
+    mux_id = DeQ(&mux_q);
+
+    Bzero((char *)&mux[mux_id].suspend_q, sizeof(q_t));
+
+    mux[mux_id].flag = flag;
+    mux[mux_id].creater = run_pid;
+
+    return mux_id;
 }
 
-int MuxOpSR(int mux_id, int opcode) {
-    //details described in 3.html
+void MuxOpSR(int mux_id, int opcode) {
+
+
+    if(opcode == LOCK) {
+
+        if(mux[mux_id].flag > 0) {
+            mux[mux_id].flag--;
+        }
+
+        else {
+            EnQ(run_pid, &mux[mux_id].suspend_q);
+            pcb[run_pid].state = SUSPEND;
+            run_pid = NONE;
+        }
+
+    }
+    else if(opcode == UNLOCK) {
+
+        if(QisEmpty(&mux[mux_id].suspend_q)) {
+            mux[mux_id].flag++;
+        }
+
+        else {
+            int proc_id;
+            proc_id = DeQ(&mux[mux_id].suspend_q);
+            EnQ(proc_id, &ready_q);
+            pcb[proc_id].state = READY;
+
+        }
+
+    }
+
+   //return mux_id; // we must return something...?
 }
 

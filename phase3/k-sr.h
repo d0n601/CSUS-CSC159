@@ -15,6 +15,6 @@ extern int GetPidSR(void);
 extern void ShowCharSR(int, int, char);
 extern void SleepSR(int);
 extern int MuxCreateSR(int);
-extern int MuxOpSR(int, int)
+extern void MuxOpSR(int, int);
 
 #endif

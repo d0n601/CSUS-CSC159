@@ -16,6 +16,8 @@ extern void Loader(trapframe_t *);       // coded in k-entry.S
 extern void GetPidEntry(void);
 extern void SleepEntry(void);
 extern void ShowCharEntry(void);
+extern void MuxCreateEntry(void);
+extern void MuxOpEntry(void);
 
 __END_DECLS
 

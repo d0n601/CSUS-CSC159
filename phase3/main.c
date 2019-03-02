@@ -17,7 +17,8 @@ q_t pid_q, ready_q, sleep_q, mux_q;   // avail PID and those created/ready to ru
 pcb_t pcb[PROC_SIZE];               // Process Control Blocks
 char proc_stack[PROC_SIZE][PROC_STACK_SIZE];   // process runtime stacks
 struct i386_gate *intr_table;    // intr table's DRAM location
-
+int vid_mux;
+mux_t mux[MUX_SIZE];     // mutex array
 
 /* Init kernel data */
 void InitKernelData(void) {
@@ -103,7 +104,7 @@ void Kernel(trapframe_t *trapframe_p) {
             SleepSR(trapframe_p->eax);
             break;
         case MUX_CREATE_CALL:
-            MuxCreateSR(trapframe_p->eax);
+            trapframe_p->eax = MuxCreateSR(trapframe_p->eax);
             break;
         case MUX_OP_CALL:
             MuxOpSR(trapframe_p->eax, trapframe_p->ebx);
