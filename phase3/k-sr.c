@@ -17,7 +17,7 @@ void NewProcSR(func_p_t p) {  // arg: where process code starts
 
    if( QisEmpty(&pid_q) ) {     // May occur if too many been created.
       cons_printf("Panic: no more process!\n");
-      breakpoint();  // cannot continue
+       return;//breakpoint();  // cannot continue
    }
 
    pid = DeQ(&pid_q);                                  // alloc PID (1st is 0)
