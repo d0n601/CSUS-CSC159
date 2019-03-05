@@ -28,9 +28,9 @@ typedef struct {       // generic queue type
 
 
 typedef struct {
-    int flag;          // max # of processes to enter
-    int creater;       // requester/owning PID
-    q_t suspend_q;     // suspended PID's
+    int flag;
+    int creater;
+    q_t suspend_q;
 } mux_t;
 
 
