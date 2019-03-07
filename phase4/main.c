@@ -1,5 +1,5 @@
 // main.c, 159
-// OS phase 3
+// OS phase 4
 //
 // Team Name: IDKc (Members: Ryan Kozak, Brad Harris)
 
@@ -19,6 +19,9 @@ char proc_stack[PROC_SIZE][PROC_STACK_SIZE];   // process runtime stacks
 struct i386_gate *intr_table;    // intr table's DRAM location
 int vid_mux;
 mux_t mux[MUX_SIZE];     // mutex array
+
+term_t term[TERM_SIZE] = { { TRUE, TERM0_IO_BASE }, { TRUE, TERM1_IO_BASE } };
+
 
 /* Init kernel data */
 void InitKernelData(void) {
