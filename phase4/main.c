@@ -51,6 +51,8 @@ void InitKernelControl(void) {
     fill_gate(&intr_table[SLEEP_CALL], (int)SleepEntry, get_cs(), ACC_INTR_GATE, 0);
     fill_gate(&intr_table[MUX_CREATE_CALL], (int)MuxCreateEntry, get_cs(), ACC_INTR_GATE, 0);
     fill_gate(&intr_table[MUX_OP_CALL], (int)MuxOpEntry, get_cs(), ACC_INTR_GATE, 0);
+    fill_gate(&intr_table[TERM0_INTR], (int)Term0Entry, get_cs(), ACC_INTR_GATE, 0);
+    fill_gate(&intr_table[TERM1_INTR], (int)Term1Entry, get_cs(), ACC_INTR_GATE, 0);
     outportb(PIC_MASK, MASK);   // mask out PIC for timer
 }
 
@@ -111,6 +113,14 @@ void Kernel(trapframe_t *trapframe_p) {
             break;
         case MUX_OP_CALL:
             MuxOpSR(trapframe_p->eax, trapframe_p->ebx);
+            break;
+        case TERM0_INTR:
+            TermSR(0);
+            outportb(PIC_CONTROL, TERM0_DONE_VAL);
+            break;
+        case TERM1_INTR:
+            TermSR(1);
+            outportb(PIC_CONTROL, TERM1_DONE_VAL);
             break;
         default:
             breakpoint();

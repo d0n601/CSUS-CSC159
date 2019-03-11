@@ -16,5 +16,7 @@ extern void ShowCharSR(int, int, char);
 extern void SleepSR(int);
 extern int MuxCreateSR(int);
 extern void MuxOpSR(int, int);
-
+extern void TermSR(int);
+extern void TermTxSR(int);
+extern void TermRxSR(int);
 #endif

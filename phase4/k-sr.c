@@ -152,3 +152,35 @@ void MuxOpSR(int mux_id, int opcode) {
    //return mux_id; // we must return something...?
 }
 
+void TermSR(int term_no) {
+    int type;
+
+    type = inportb(term[term_no].io_base+IIR);	//read IIR??
+
+    if(type == TXRDY) {
+        TermTxSR(term_no);
+    }
+    else if(type == RXRDY) {
+        TermRxSR(term_no);
+    }
+
+    if(term[term_no].tx_missed) {
+        TermTxSR(term_no);
+    }
+}
+
+void TermTxSR(int term_no) {
+    char * ch;
+    if(QisEmpty(&term[term_no].out_q)) {
+        term[term_no].tx_missed = TRUE;
+        return;
+    }
+    else {
+        ch = (char *)DeQ(&term[term_no].out_q);
+        outportb(term[term_no].io_base+DATA, *ch);
+        term[term_no].tx_missed = FALSE;
+        MuxOpSR(term[term_no].out_mux, UNLOCK);
+    }
+}
+
+void TermRxSR(int term_no) { return; }
