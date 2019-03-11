@@ -58,9 +58,7 @@ void CheckWakeProc(void) {
             EnQ(p_id, &sleep_q);  // No: enqueue PID back to sleep_q.
         }
     }
-
 }
-
 
 
 /* Count run_count and switch if hitting time slice */
@@ -153,9 +151,10 @@ void MuxOpSR(int mux_id, int opcode) {
 }
 
 void TermSR(int term_no) {
+
     int type;
 
-    type = inportb(term[term_no].io_base+IIR);	//read IIR??
+    type = inportb(term[term_no].io_base + IIR);
 
     if(type == TXRDY) {
         TermTxSR(term_no);
@@ -170,17 +169,20 @@ void TermSR(int term_no) {
 }
 
 void TermTxSR(int term_no) {
-    char * ch;
+
+    char *ch;
+
     if(QisEmpty(&term[term_no].out_q)) {
         term[term_no].tx_missed = TRUE;
         return;
     }
     else {
         ch = (char *)DeQ(&term[term_no].out_q);
-        outportb(term[term_no].io_base+DATA, *ch);
+        outportb(term[term_no].io_base + DATA, *ch);
         term[term_no].tx_missed = FALSE;
         MuxOpSR(term[term_no].out_sem, UNLOCK);
     }
+
 }
 
 void TermRxSR(int term_no) { return; }

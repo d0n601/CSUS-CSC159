@@ -2,6 +2,8 @@
 // calls to kernel services
 
 #include "k-const.h"
+#include "k-data.h"
+#include "k-lib.h"
 
 int GetPidCall(void) {
     int pid;
@@ -64,12 +66,38 @@ void MuxOpCall(int mux_id, int opcode) {
 void WriteCall(int device, char *str) {
     int x = GetPidCall();
     int y = 0;
+    int term_no;
 
     if(device ==  STDOUT) {
         while(*str != '\0') {
             ShowCharCall(x, y, *str);
             str++;
             y++;
+        }
+    }
+    else {
+        if(device == TERM0_INTR) {
+            term_no = 0;
+        }
+        else {
+            term_no = 1;
+        }
+        while(*str != '\0') {
+            MuxOpCall(term[term_no].out_sem, LOCK);
+            EnQ((int)*str, &term[term_no].out_q);
+            if(device == TERM0_INTR) {
+                asm("int %0"
+                    :
+                    : "g" (TERM0_INTR)
+                );
+            }
+            else if(device == TERM1_INTR) {
+                asm("int %0"
+                    :
+                    : "g" (TERM1_INTR)
+                );
+            }
+            str++;
         }
     }
 
