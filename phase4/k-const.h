@@ -6,7 +6,7 @@
 #define NONE -1             // used when none
 #define TIMER_INTR 32       // TIMER INTR constant identifier
 #define PIC_MASK 0x21       // Programmable Interrupt Controller I/O
-#define MASK ~0x01          // mask for Programmable Interrupt Controller
+#define MASK 0xffffffe6     // new mask 1111_1111_1111_1111_1111_1111_1110_0110
 #define PIC_CONTROL 0x20    // Programmable Interrupt Controller I/O
 #define TIMER_DONE 0x60     // sent to PIC when timer service done
 
@@ -44,7 +44,6 @@
 #define TERM1_DONE_VAL 0x64 // to send to PIC when 1st term served
 #define TXRDY 2             // terminal has a Transmit Ready event
 #define RXRDY 4             // terminal has a Receive Ready event
-#define MASK 0xffffffe6     // new mask 1111_1111_1111_1111_1111_1111_1110_0110
 #define TRUE 1
 #define FALSE 0
 

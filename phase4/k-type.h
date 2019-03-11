@@ -37,7 +37,7 @@ typedef struct {
 typedef struct {
     int tx_missed;   // when initialized or after output last char
     int io_base;     // terminal port I/O base #
-    int out_mux;     // flow-control mux
+    int out_sem;     // flow-control mux
     q_t out_q;       // characters to send to terminal buffered here
 } term_t;
 

@@ -179,7 +179,7 @@ void TermTxSR(int term_no) {
         ch = (char *)DeQ(&term[term_no].out_q);
         outportb(term[term_no].io_base+DATA, *ch);
         term[term_no].tx_missed = FALSE;
-        MuxOpSR(term[term_no].out_mux, UNLOCK);
+        MuxOpSR(term[term_no].out_sem, UNLOCK);
     }
 }
 
