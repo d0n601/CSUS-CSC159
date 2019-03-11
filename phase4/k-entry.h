@@ -18,7 +18,8 @@ extern void SleepEntry(void);
 extern void ShowCharEntry(void);
 extern void MuxCreateEntry(void);
 extern void MuxOpEntry(void);
-
+extern void Term0Entry(void);
+extern void Term1Entry(void);
 __END_DECLS
 
 #endif // ifndef ASSEMBLER
