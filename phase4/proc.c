@@ -31,10 +31,6 @@ void InitTerm(int term_no) {  // <------------------------------ NEW!!!
       outportb(term[term_no].io_base+DATA, '\r');
       for(i=0; i<LOOP/30; i++)asm("inb $0x80");
    }
-/*
-   inportb(term_term_no].io_base); // clear key cleared PROCOMM screen
-   for(i=0; i<LOOP/2; i++)asm("inb $0x80");
-*/
 }
 
 void InitProc(void) {
@@ -67,14 +63,11 @@ void UserProc(void) {
    which_term = my_pid % 2 == 1? TERM0_INTR : TERM1_INTR; // <---- new
 
    while(1) {
-//      MuxOpCall(vid_mux, LOCK);
       WriteCall(STDOUT, str1);
       WriteCall(which_term, str1);    // <------------------------------ NEW!!!
       WriteCall(which_term, "\n\r");  // <------------------------------ NEW!!!
       SleepCall(50);
-
       WriteCall(STDOUT, str2);
       SleepCall(50);
-//      MuxOpCall(vid_mux, UNLOCK);
    }
 }

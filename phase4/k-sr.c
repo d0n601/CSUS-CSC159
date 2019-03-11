@@ -117,12 +117,9 @@ int MuxCreateSR(int flag) {
 
 void MuxOpSR(int mux_id, int opcode) {
 
-
 	if(opcode == LOCK) {
 
-		if(mux[mux_id].flag > 0) {
-			mux[mux_id].flag--;
-		}
+		if(mux[mux_id].flag > 0) mux[mux_id].flag--;
 
 		else {
 			EnQ(run_pid, &mux[mux_id].suspend_q);
@@ -133,39 +130,26 @@ void MuxOpSR(int mux_id, int opcode) {
 	}
 	else if(opcode == UNLOCK) {
 
-		if(QisEmpty(&mux[mux_id].suspend_q)) {
-			mux[mux_id].flag++;
-		}
+		if(QisEmpty(&mux[mux_id].suspend_q)) mux[mux_id].flag++;
 
 		else {
 			int proc_id;
 			proc_id = DeQ(&mux[mux_id].suspend_q);
 			EnQ(proc_id, &ready_q);
 			pcb[proc_id].state = READY;
-
 		}
-
 	}
-
-	//return mux_id; // we must return something...?
 }
 
 void TermSR(int term_no) {
 
-	int type;
+	int type = inportb(term[term_no].io_base + IIR);
 
-	type = inportb(term[term_no].io_base + IIR);
+	if(type == TXRDY) TermTxSR(term_no);
 
-	if(type == TXRDY) {
-		TermTxSR(term_no);
-	}
-	else if(type == RXRDY) {
-		TermRxSR(term_no);
-	}
+	else if(type == RXRDY) TermRxSR(term_no);
 
-	if(term[term_no].tx_missed) {
-		TermTxSR(term_no);
-	}
+	if(term[term_no].tx_missed) TermTxSR(term_no);
 }
 
 void TermTxSR(int term_no) {
