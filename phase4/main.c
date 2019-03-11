@@ -26,113 +26,113 @@ term_t term[TERM_SIZE] = { { TRUE, TERM0_IO_BASE }, { TRUE, TERM1_IO_BASE } };
 /* Init kernel data */
 void InitKernelData(void) {
 
-    int i;
-    sys_centi_sec = 0;
-    intr_table = get_idt_base();            // Get intr table location.
+	int i;
+	sys_centi_sec = 0;
+	intr_table = get_idt_base();            // Get intr table location.
 
-    /* Clear all queues. */
-    Bzero((char *) &pid_q, sizeof(q_t));
-    Bzero((char *) &ready_q, sizeof(q_t));
-    Bzero((char *) &sleep_q, sizeof(q_t));
-    Bzero((char *) &mux_q, sizeof(q_t));
+	/* Clear all queues. */
+	Bzero((char *) &pid_q, sizeof(q_t));
+	Bzero((char *) &ready_q, sizeof(q_t));
+	Bzero((char *) &sleep_q, sizeof(q_t));
+	Bzero((char *) &mux_q, sizeof(q_t));
 
-    for (i = 0; i < Q_SIZE; i++) EnQ(i, &pid_q);
-    for (i = 0; i < MUX_SIZE; i++) EnQ(i, &mux_q);
+	for (i = 0; i < Q_SIZE; i++) EnQ(i, &pid_q);
+	for (i = 0; i < MUX_SIZE; i++) EnQ(i, &mux_q);
 
-    run_pid = NONE;   //set run_pid to NONE
+	run_pid = NONE;   //set run_pid to NONE
 }
 
 
 /* init kernel control */
 void InitKernelControl(void) {
-    fill_gate(&intr_table[TIMER_INTR], (int)TimerEntry, get_cs(), ACC_INTR_GATE, 0); // fill out intr table for timer
-    fill_gate(&intr_table[GETPID_CALL], (int)GetPidEntry, get_cs(), ACC_INTR_GATE, 0);
-    fill_gate(&intr_table[SHOWCHAR_CALL], (int)ShowCharEntry, get_cs(), ACC_INTR_GATE, 0);
-    fill_gate(&intr_table[SLEEP_CALL], (int)SleepEntry, get_cs(), ACC_INTR_GATE, 0);
-    fill_gate(&intr_table[MUX_CREATE_CALL], (int)MuxCreateEntry, get_cs(), ACC_INTR_GATE, 0);
-    fill_gate(&intr_table[MUX_OP_CALL], (int)MuxOpEntry, get_cs(), ACC_INTR_GATE, 0);
-    fill_gate(&intr_table[TERM0_INTR], (int)Term0Entry, get_cs(), ACC_INTR_GATE, 0);
-    fill_gate(&intr_table[TERM1_INTR], (int)Term1Entry, get_cs(), ACC_INTR_GATE, 0);
-    outportb(PIC_MASK, MASK);   // mask out PIC for timer
+	fill_gate(&intr_table[TIMER_INTR], (int)TimerEntry, get_cs(), ACC_INTR_GATE, 0); // fill out intr table for timer
+	fill_gate(&intr_table[GETPID_CALL], (int)GetPidEntry, get_cs(), ACC_INTR_GATE, 0);
+	fill_gate(&intr_table[SHOWCHAR_CALL], (int)ShowCharEntry, get_cs(), ACC_INTR_GATE, 0);
+	fill_gate(&intr_table[SLEEP_CALL], (int)SleepEntry, get_cs(), ACC_INTR_GATE, 0);
+	fill_gate(&intr_table[MUX_CREATE_CALL], (int)MuxCreateEntry, get_cs(), ACC_INTR_GATE, 0);
+	fill_gate(&intr_table[MUX_OP_CALL], (int)MuxOpEntry, get_cs(), ACC_INTR_GATE, 0);
+	fill_gate(&intr_table[TERM0_INTR], (int)Term0Entry, get_cs(), ACC_INTR_GATE, 0);
+	fill_gate(&intr_table[TERM1_INTR], (int)Term1Entry, get_cs(), ACC_INTR_GATE, 0);
+	outportb(PIC_MASK, MASK);   // mask out PIC for timer
 }
 
 
 /* choose run_pid */
 void Scheduler(void) {
 
-    if(run_pid > 0) return; // OK/picked
+	if(run_pid > 0) return; // OK/picked
 
-    if(QisEmpty(&ready_q)) run_pid = 0;
+	if(QisEmpty(&ready_q)) run_pid = 0;
 
-    else {
-        pcb[0].state = READY;   // Change state of PID 0 to ready.
-        run_pid = DeQ(&ready_q);      // Dequeue ready_q to set run_pid.
-    }
-    
-    pcb[run_pid].run_count = 0;   // Reset run_count of selected proc.
-    pcb[run_pid].state = RUN;    //  Upgrade its state to run. 
+	else {
+		pcb[0].state = READY;   // Change state of PID 0 to ready.
+		run_pid = DeQ(&ready_q);      // Dequeue ready_q to set run_pid.
+	}
+
+	pcb[run_pid].run_count = 0;   // Reset run_count of selected proc.
+	pcb[run_pid].state = RUN;    //  Upgrade its state to run.
 }
 
 
 /* OS bootstraps */
 int main(void) {
 
-    InitKernelData();       // call to initialize kernel data.
-    InitKernelControl();    // call to initialize kernel control.
-    NewProcSR(InitProc);    // create InitProc  
-    Scheduler();            // call Scheduler()
+	InitKernelData();       // call to initialize kernel data.
+	InitKernelControl();    // call to initialize kernel control.
+	NewProcSR(InitProc);    // create InitProc
+	Scheduler();            // call Scheduler()
 
-    Loader(pcb[run_pid].trapframe_p);   // call Loader(pcb[run_pid].trapframe_p); load/run it
+	Loader(pcb[run_pid].trapframe_p);   // call Loader(pcb[run_pid].trapframe_p); load/run it
 
-    return 0; // statement never reached, compiler asks it for syntax
+	return 0; // statement never reached, compiler asks it for syntax
 }
 
 /* kernel runs */
 void Kernel(trapframe_t *trapframe_p) {
 
-    char ch;
+	char ch;
 
-    pcb[run_pid].trapframe_p = trapframe_p; // Save it
+	pcb[run_pid].trapframe_p = trapframe_p; // Save it
 
-    /* Use a "switch(trapframe_p->entry_id)" to call the respective SR, each SR */
-    switch(trapframe_p->entry_id) {
-        case TIMER_INTR:
-            TimerSR();
-            break;
-        case GETPID_CALL:
-            trapframe_p->eax = GetPidSR();
-            break;
-        case SHOWCHAR_CALL:
-            ShowCharSR(trapframe_p->eax, trapframe_p->ebx, trapframe_p->ecx);
-            break;
-        case SLEEP_CALL:
-            SleepSR(trapframe_p->eax);
-            break;
-        case MUX_CREATE_CALL:
-            trapframe_p->eax = MuxCreateSR(trapframe_p->eax);
-            break;
-        case MUX_OP_CALL:
-            MuxOpSR(trapframe_p->eax, trapframe_p->ebx);
-            break;
-        case TERM0_INTR:
-            TermSR(0);
-            outportb(PIC_CONTROL, TERM0_DONE_VAL);
-            break;
-        case TERM1_INTR:
-            TermSR(1);
-            outportb(PIC_CONTROL, TERM1_DONE_VAL);
-            break;
-        default:
-            breakpoint();
-    }
+	/* Use a "switch(trapframe_p->entry_id)" to call the respective SR, each SR */
+	switch(trapframe_p->entry_id) {
+		case TIMER_INTR:
+			TimerSR();
+			break;
+		case GETPID_CALL:
+			trapframe_p->eax = GetPidSR();
+			break;
+		case SHOWCHAR_CALL:
+			ShowCharSR(trapframe_p->eax, trapframe_p->ebx, trapframe_p->ecx);
+			break;
+		case SLEEP_CALL:
+			SleepSR(trapframe_p->eax);
+			break;
+		case MUX_CREATE_CALL:
+			trapframe_p->eax = MuxCreateSR(trapframe_p->eax);
+			break;
+		case MUX_OP_CALL:
+			MuxOpSR(trapframe_p->eax, trapframe_p->ebx);
+			break;
+		case TERM0_INTR:
+			TermSR(0);
+			outportb(PIC_CONTROL, TERM0_DONE_VAL);
+			break;
+		case TERM1_INTR:
+			TermSR(1);
+			outportb(PIC_CONTROL, TERM1_DONE_VAL);
+			break;
+		default:
+			breakpoint();
+	}
 
-   /* keyboard of target PC is pressed */
-   if( cons_kbhit() ) {
-       ch = cons_getchar();                 //  Read the key.
-       if(ch == 'b') breakpoint();             // 'b' for breakpoint.
-       else if(ch == 'n') NewProcSR(UserProc);   // 'n' for new process.
-   }
+	/* keyboard of target PC is pressed */
+	if( cons_kbhit() ) {
+		ch = cons_getchar();                 //  Read the key.
+		if(ch == 'b') breakpoint();             // 'b' for breakpoint.
+		else if(ch == 'n') NewProcSR(UserProc);   // 'n' for new process.
+	}
 
-   Scheduler();                             // Call Scheduler()... may need to pick another proc.
-   Loader(pcb[run_pid].trapframe_p);        // Loader(...).
+	Scheduler();                             // Call Scheduler()... may need to pick another proc.
+	Loader(pcb[run_pid].trapframe_p);        // Loader(...).
 }

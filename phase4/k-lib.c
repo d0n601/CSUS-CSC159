@@ -7,11 +7,11 @@
 
 /* Clear DRAM data block, zero-fill it */
 void Bzero(char *p, int bytes) {
-   if (bytes > 0) {
-      do {
-         *p++ = '\0';
-      } while (--bytes);
-   }
+        if (bytes > 0) {
+                do {
+                        *p++ = '\0';
+                } while (--bytes);
+        }
 }
 
 /* Return 1 if empty, else 0 */
@@ -26,31 +26,31 @@ int QisFull(q_t *p) { return (p->size == Q_SIZE); }
 */
 int DeQ(q_t *p) { // return -1 if q[] is empty
 
-   int ret_val , i;
+        int ret_val , i;
 
-   if(QisEmpty(p)){
-      printf("The Queue is empty!");
-      return NONE; //    Notes from phaes1: use NONE (for -1)
-   }
+        if(QisEmpty(p)) return NONE;
 
-   ret_val = p->q[0];
-   p->size--;
+        ret_val = p->q[0];
 
-   for(i = 0; i < p->size; i++) {
-      p->q[i] = p->q[i+1];
-   }
-   return ret_val;
+        /* This was what was breaking us - ryan */
+        for(i = 0; i < Q_SIZE; i++) {
+                if(i < p->size - 1) p->q[i] = p->q[i+1];
+                else p->q[i] = -1;
+        }
+        p->size--;
+        return ret_val;
 }
+
 
 /* If not full, enqueue # to tail slot in queue. */
 void EnQ(int to_add, q_t *p) {
-   if(QisFull(p)) {
-       cons_printf("Panic: queue is full, cannot EnQ!\n");
-       return;
-   }
+        if (QisFull(p)) {
+                cons_printf("Panic: queue is full, cannot EnQ!\n");
+                return;
+        }
 
-   if(p->q[p->size] < Q_SIZE) p->q[p->size] = to_add; // q[tail] = NONE will segfault if tail has just become 20 (full queue)
+        if (p->q[p->size] < Q_SIZE)
+                p->q[p->size] = to_add; // q[tail] = NONE will segfault if tail has just become 20 (full queue)
 
-   p->size++;
-
+        p->size++;
 }
