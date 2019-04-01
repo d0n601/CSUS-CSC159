@@ -89,7 +89,7 @@ void WriteCall(int device, char *str) {
 
 		while(*str != '\0') {
 
-			MuxOpCall(term[term_no].out_sem, LOCK);
+			MuxOpCall(term[term_no].out_mux, LOCK);
 
 			EnQ((int)str, &term[term_no].out_q);
 

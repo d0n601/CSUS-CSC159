@@ -12,7 +12,7 @@ void InitTerm(int term_no) {  // <------------------------------ NEW!!!
    int i, j;
 
    Bzero((char *)&term[term_no].out_q, sizeof(q_t));
-   term[term_no].out_sem = MuxCreateCall(Q_SIZE);
+   term[term_no].out_mux = MuxCreateCall(Q_SIZE);
 
    outportb(term[term_no].io_base+CFCR, CFCR_DLAB);             // CFCR_DLAB is 0x80
    outportb(term[term_no].io_base+BAUDLO, LOBYTE(115200/9600)); // period of each of 9600 bauds
