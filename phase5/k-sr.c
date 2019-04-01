@@ -159,12 +159,12 @@ void TermTxSR(int term_no) {
 		return;
 	}
 	else {
-		char *ch = (char *)DeQ(&term[term_no].out_q);
-		outportb(term[term_no].io_base + DATA, *ch);
+		char ch = DeQ(&term[term_no].out_q);
+		outportb(term[term_no].io_base + DATA, ch);
 		term[term_no].tx_missed = FALSE;
 		MuxOpSR(term[term_no].out_mux, UNLOCK);
 	}
 
 }
 
-void TermRxSR(int term_no) { return; }
+void TermRxSR(int term_no) {}

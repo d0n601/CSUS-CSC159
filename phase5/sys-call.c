@@ -91,7 +91,7 @@ void WriteCall(int device, char *str) {
 
 			MuxOpCall(term[term_no].out_mux, LOCK);
 
-			EnQ((int)str, &term[term_no].out_q);
+			EnQ(*str, &term[term_no].out_q);
 
 			if(device == TERM0_INTR) asm("int %0":: "g" (TERM0_INTR));
 
