@@ -93,9 +93,9 @@ void WriteCall(int device, char *str) {
 
 			EnQ(*str, &term[term_no].out_q);
 
-			if(device == TERM0_INTR) asm("int %0":: "g" (TERM0_INTR));
-
-			else asm("int %0":: "g" (TERM1_INTR));
+			/* asm("int %0": :"g" (device)); */
+			if(device == TERM0_INTR) asm("int %0": : "g" (TERM0_INTR));
+			else asm("int %0": :"g" (TERM1_INTR));
 
 			str++;
 		}
