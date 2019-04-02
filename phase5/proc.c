@@ -5,14 +5,17 @@
 #include "k-const.h"   // LOOP
 #include "sys-call.h"  // all service calls used below
 #include "k-data.h"
-#include "k-lib.h"      // <------------------------------ NEW!!!
-#include "k-include.h"  // <------------------------------ NEW!!!
+#include "k-lib.h"
+#include "k-include.h"
 
-void InitTerm(int term_no) {  // <------------------------------ NEW!!!
+void InitTerm(int term_no) {
    int i, j;
 
    Bzero((char *)&term[term_no].out_q, sizeof(q_t));
+   Bzero((char *)&term[term_no].in_q, sizeof(q_t));      // <------------- new
+   Bzero((char *)&term[term_no].echo_q, sizeof(q_t));    // <------------- new
    term[term_no].out_mux = MuxCreateCall(Q_SIZE);
+   term[term_no].in_mux = MuxCreateCall(0);              // <------------- new
 
    outportb(term[term_no].io_base+CFCR, CFCR_DLAB);             // CFCR_DLAB is 0x80
    outportb(term[term_no].io_base+BAUDLO, LOBYTE(115200/9600)); // period of each of 9600 bauds
@@ -31,6 +34,10 @@ void InitTerm(int term_no) {  // <------------------------------ NEW!!!
       outportb(term[term_no].io_base+DATA, '\r');
       for(i=0; i<LOOP/30; i++)asm("inb $0x80");
    }
+/*  // uncomment this part for VM (Procomm logo needs a key pressed, here reads it off)
+   inportb(term[term_no].io_base); // clear key cleared PROCOMM screen
+   for(i=0; i<LOOP/2; i++)asm("inb $0x80");
+*/
 }
 
 void InitProc(void) {
@@ -38,8 +45,8 @@ void InitProc(void) {
 
    vid_mux = MuxCreateCall(1);  // create/alloc a mutex, flag init 1
 
-   InitTerm(0);  // <------------------------------ NEW!!!
-   InitTerm(1);  // <------------------------------ NEW!!!
+   InitTerm(0);
+   InitTerm(1);
 
    while(1) {
       ShowCharCall(0, 0, '.');
@@ -51,23 +58,20 @@ void InitProc(void) {
 }
 
 void UserProc(void) {
-   int which_term;
+   int device;
    int my_pid = GetPidCall();  // get my PID
 
-   char str1[STR_SIZE] = "PID    process is running exclusively using the video display...";
-   char str2[STR_SIZE] = "                                                                ";
+   char str1[STR_SIZE] = "PID    > ";         // <-------------------- new
+   char str2[STR_SIZE];                       // <-------------------- new
 
    str1[4] = '0' + my_pid / 10;  // show my PID
    str1[5] = '0' + my_pid % 10;
 
-   which_term = my_pid % 2 == 1? TERM0_INTR : TERM1_INTR; // <---- new
+   device = my_pid % 2 == 1? TERM0_INTR : TERM1_INTR;
 
    while(1) {
-      WriteCall(STDOUT, str1);
-      WriteCall(which_term, str1);    // <------------------------------ NEW!!!
-      WriteCall(which_term, "\n\r");  // <------------------------------ NEW!!!
-      SleepCall(50);
-      WriteCall(STDOUT, str2);
-      SleepCall(50);
+      WriteCall(device, str1);  // prompt for terminal input     <-------------- new
+      ReadCall(device, str2);   // read terminal input           <-------------- new
+      WriteCall(STDOUT, str2);  // show what input was to PC     <-------------- new
    }
 }

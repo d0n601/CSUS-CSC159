@@ -156,17 +156,39 @@ void TermTxSR(int term_no) {
 
 	char ch;
 
-	if(QisEmpty(&term[term_no].out_q)) {
-		term[term_no].tx_missed = TRUE;
+	//  If both echo_q and out_q are empty.
+	if( QisEmpty(&term[term_no].out_q) && QisEmpty(&term[term_no].echo_q) ) {
+		term[term_no].tx_missed = TRUE; // Set tx_missed flag to TRUE.
 		return;
 	}
 
-	ch = DeQ(&term[term_no].out_q);
+	// Echo_q is not empty.
+	if(!QisEmpty(&term[term_no].echo_q)) {
+		ch = DeQ(&term[term_no].echo_q);   // Get a char from there.
+	}
 
-	outportb(term[term_no].io_base + DATA, ch);
-	term[term_no].tx_missed = FALSE;
-	MuxOpSR(term[term_no].out_mux, UNLOCK);
-
+	else {
+		ch = DeQ(&term[term_no].out_q);          // Get char from out_q.
+		MuxOpSR(term[term_no].out_mux, UNLOCK);  // Unlock out_mux.
+	}
+	outportb(term[term_no].io_base + DATA, ch);  // Send char via outportb.
+	term[term_no].tx_missed = FALSE;			 // Set tx_missed to FALSE.
 }
 
-void TermRxSR(int term_no) {}
+void TermRxSR(int term_no) {
+
+	char ch;
+
+	ch = inportb(term[term_no].io_base + DATA);  // Read a char from the terminal io_base+DATA.
+	EnQ(ch, &term[term_no].echo_q);				 // Enqueue char to the terminal echo_q.
+
+	// If char is CR.
+	if(ch == '\r') {
+		EnQ('\n', &term[term_no].echo_q);  	// Also enqueue NL to the terminal echo_q.
+		// Shouldn't we do this too??? -> EnQ('\r', &term[term_no].echo_q);
+		EnQ('\0', &term[term_no].in_q);		// Enqueue NUL to the terminal in_q.
+	}
+	else EnQ(ch, &term[term_no].in_q); // Enqueue NUL to the terminal in_q.
+
+	MuxOpSR(term[term_no].in_mux, UNLOCK);   // Unlock the terminal in_mux.
+}

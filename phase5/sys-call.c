@@ -5,6 +5,7 @@
 #include "k-data.h"
 #include "k-lib.h"
 
+
 int GetPidCall(void) {
 	int pid;
 	asm("
@@ -17,6 +18,7 @@ int GetPidCall(void) {
 
 	return pid;
 }
+
 
 void ShowCharCall(int row, int col, char ch) {
 	asm("
@@ -104,3 +106,29 @@ void WriteCall(int device, char *str) {
 
 
 
+void ReadCall(int device, char *str) {
+
+	char ch;
+	int term_no, ch_count = 0; // Number of chars gathered so far = 0.
+
+	term_no = device == TERM0_INTR ? 0 : 1;  // Determine which term_no.
+
+	while(TRUE) {
+
+		MuxOpCall(term[term_no].in_mux, LOCK);  // Lock the in_mux of the terminal.
+
+		ch = DeQ(&term[term_no].out_q);  // Dequeue a char from in_q of the terminal.
+
+		*str = ch;  // Set where the str points to to char.
+
+		if(ch == '\0') return; // If char is NUL -> return.
+
+		str++; ch_count++;  // Advance both str pointer and char count.
+
+		// If char count is at the last available space of the given string.
+		if(ch_count == STR_SIZE) {
+			*str = '\0';  // Set where str points to to NUL.
+			return; // Return...
+		}
+	}
+}
