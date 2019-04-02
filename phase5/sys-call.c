@@ -85,9 +85,7 @@ void WriteCall(int device, char *str) {
 	}
 	else {
 
-		if(device == TERM0_INTR) term_no = 0;
-
-		else term_no = 1;
+        term_no = device == TERM0_INTR ? 0 : 1;  // Determine which term_no.
 
 		while(*str != '\0') {
 
@@ -106,29 +104,31 @@ void WriteCall(int device, char *str) {
 
 
 
-void ReadCall(int device, char *str) {
+void ReadCall(int device, char * str) {
 
-	char ch;
-	int term_no, ch_count = 0; // Number of chars gathered so far = 0.
+    char ch;
+    int term_no, ct = 0; // Number of chars gathered so far = 0
 
-	term_no = device == TERM0_INTR ? 0 : 1;  // Determine which term_no.
+    term_no = device == TERM0_INTR ? 0 : 1;  // Determine which term_no.
 
-	while(TRUE) {
+    while(TRUE) {
 
-		MuxOpCall(term[term_no].in_mux, LOCK);  // Lock the in_mux of the terminal.
+        MuxOpCall(term[term_no].in_mux, LOCK);  // Lock the in_mux of the terminal.
 
-		ch = DeQ(&term[term_no].out_q);  // Dequeue a char from in_q of the terminal.
+        ch = DeQ(&term[term_no].in_q); // Dequeue a char from out_q of the terminal.
 
-		*str = ch;  // Set where the str points to to char.
+        *str = ch; // Set where the str points to to char.
 
-		if(ch == '\0') return; // If char is NUL -> return.
+        if(ch == '\0') return;  // If char is NUL -> return.
 
-		str++; ch_count++;  // Advance both str pointer and char count.
+        ct++; str++;  // Advance both str pointer and char count.
 
-		// If char count is at the last available space of the given string.
-		if(ch_count == STR_SIZE) {
-			*str = '\0';  // Set where str points to to NUL.
-			return; // Return...
-		}
-	}
+        // If char count is at the last available space of the given string.
+        if(ct == STR_SIZE - 1) {
+            *str = '\0';  // Set where str points to to NUL.
+            return;
+        }
+
+    }
 }
+
