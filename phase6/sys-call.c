@@ -132,3 +132,21 @@ void ReadCall(int device, char * str) {
     }
 }
 
+
+/*
+ *	Returns the PID of the new child process to the calling
+ *	(parent) process, or NONE if the call fails. If succeeded,
+ *	the child gets 0.
+ */
+int ForkCall(void) {}
+
+
+/* Returns the exit code from the child process (as it exits) */
+int WaitCall(void) {}
+
+
+/* Called by an exiting process, an exit code is given
+ * to return to its parent process
+ *
+*/
+void ExitCall(int) {}

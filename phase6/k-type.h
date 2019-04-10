@@ -7,7 +7,7 @@
 
 typedef void (*func_p_t)(void); // void-return function pointer type
 
-typedef enum {UNUSED, READY, RUN, SLEEP, SUSPEND} state_t;
+typedef enum {UNUSED, READY, RUN, SLEEP, SUSPEND, ZOMBIE, WAIT} state_t;
 
 typedef struct {
 	unsigned int edi, esi, ebp, esp, ebx, edx, ecx, eax, entry_id, eip, cs, efl;
@@ -19,6 +19,8 @@ typedef struct {
 	int run_count;              // A timer interrupt count, reset it when the process is selected.
 	int total_count;            // Accumulated timer counts since the creation of the process.
 	trapframe_t *trapframe_p;   // Location of the CPU context in the process stack.
+	int ppid;					// To record parent PID when the process is created by ForkSR().
+
 } pcb_t;
 
 typedef struct {       			// Generic queue type.
