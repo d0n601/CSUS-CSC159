@@ -138,15 +138,47 @@ void ReadCall(int device, char * str) {
  *	(parent) process, or NONE if the call fails. If succeeded,
  *	the child gets 0.
  */
-int ForkCall(void) {}
+int ForkCall(void) {
+
+	int exit_code;
+
+	asm("
+		int %1;
+		movl %%eax, %0"
+		: "=g" (exit_code)
+		: "g" (FORK_CALL)
+		: "eax"
+	);
+
+	return exit_code;
+}
 
 
 /* Returns the exit code from the child process (as it exits) */
-int WaitCall(void) {}
+int WaitCall(void) {
+
+	int exit_code;
+
+	asm("
+		int %1;
+		movl %%eax, %0"
+		: "=g" (exit_code)
+		: "g" (WAIT_CALL)
+		: "eax"
+	);
+
+	return exit_code;
+}
 
 
-/* Called by an exiting process, an exit code is given
- * to return to its parent process
- *
+/* Called by an exiting process, an exit code is given to return to its parent process
 */
-void ExitCall(int) {}
+void ExitCall(int exit_code) {
+	asm("
+		movl %0, %%eax;
+		int %1"
+		:
+		: "g" (exit_code), "g" (EXIT_CALL)
+		: "eax"
+	);
+}

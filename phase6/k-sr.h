@@ -19,4 +19,8 @@ extern void MuxOpSR(int, int);
 extern void TermSR(int);
 extern void TermTxSR(int);
 extern void TermRxSR(int);
+extern int ForkSR(void);
+extern int WaitSR(void);
+extern void ExitSR(int);
+
 #endif

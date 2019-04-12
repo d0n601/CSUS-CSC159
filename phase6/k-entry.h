@@ -12,7 +12,6 @@ __BEGIN_DECLS
 
 extern void TimerEntry(void);            // coded in k-entry.S, assembler won't like this syntax
 extern void Loader(trapframe_t *);       // coded in k-entry.S
-
 extern void GetPidEntry(void);
 extern void SleepEntry(void);
 extern void ShowCharEntry(void);
@@ -20,6 +19,9 @@ extern void MuxCreateEntry(void);
 extern void MuxOpEntry(void);
 extern void Term0Entry(void);
 extern void Term1Entry(void);
+extern void ForkEntry(void);
+extern void WaitEntry(void);
+extern void ExitEntry(void);
 __END_DECLS
 
 #endif // ifndef ASSEMBLER

@@ -7,6 +7,8 @@
 #include "k-data.h"
 #include "k-lib.h"
 #include "k-include.h"
+#include "proc.h"
+
 
 void InitTerm(int term_no) {
    int i, j;
@@ -40,6 +42,7 @@ void InitTerm(int term_no) {
 */
 }
 
+
 void InitProc(void) {
    int i;
 
@@ -57,21 +60,89 @@ void InitProc(void) {
    }
 }
 
-void UserProc(void) {
-   int device;
-   int my_pid = GetPidCall();  // get my PID
 
-   char str1[STR_SIZE] = "PID    > ";         // <-------------------- new
-   char str2[STR_SIZE];                       // <-------------------- new
+
+void UserProc(void) {
+
+   int device, frk, exit_code;
+   int my_pid = GetPidCall();
+
+   char str1[STR_SIZE] = "PID    > ";
+   char str2[STR_SIZE];
+   char str3[STR_SIZE] = "Child PID:   ";
+   char str4[STR_SIZE] = "Child Exit Code:   ";
 
    str1[4] = '0' + my_pid / 10;  // show my PID
    str1[5] = '0' + my_pid % 10;
 
    device = my_pid % 2 == 1? TERM0_INTR : TERM1_INTR;
 
-   while(1) {
-      WriteCall(device, str1);  // prompt for terminal input     <-------------- new
-      ReadCall(device, str2);   // read terminal input           <-------------- new
-      WriteCall(STDOUT, str2);  // show what input was to PC     <-------------- new
+   while(TRUE) {
+
+      WriteCall(device, str1);  // prompt for terminal input
+      ReadCall(device, str2);   // read terminal input
+
+      // Compare str2 and "fork", if not the same -> "continue;"
+      if(StrCmp(str2,"fork") != 0) continue;
+
+      frk = ForkCall();  // Make a ForkCall() and get its return.
+
+      if(frk == NONE) {
+         WriteCall(device, "Couldn't Fork!");
+         continue;
+      }
+
+      if(frk == 0) Aout(device); //child code
+
+      /*
+       * Prompt to terminal: the child PID (see demo)  // parent code
+       * additional prompt to terminal "\n\r" would look better like the demo
+       */
+      WriteCall(device, str3); //parent code
+      WriteCall(device, "\n\r");
+
+      exit_code = WaitCall();  // Make a WaitCall() and get an exit code from child.
+
+      /*
+       *  Prompt to terminal: the child exit code (see demo)
+       *  must try your Itoa() (in k-lib.c) to convert exit_code to str for prompting
+       *  additional prompt to terminal "\n\r" would look better like the demo.
+       */
+      Itoa(&str4[16], exit_code);
+      WriteCall(device, str4);
+      WriteCall(device, "\n\r");
    }
+
+}
+
+
+
+void Aout(int device) {
+
+   int i;
+   int pid = GetPidCall(); // Get my PID
+   char str[STR_SIZE] = "   ( ) Hello, World!\n\r\0";
+
+   str[0] = '0' + pid / 10;
+   str[1] = '0' + pid % 10;
+
+   /*
+    * In above str, replace xx with my PID, and a alphabet inside
+    * the bracket (alphabet B if my PID is 2, C if 3, D if 4, etc.)
+    */
+   str[4] = 'A' + pid - 1;
+
+   // Prompt to terminal the str.
+   WriteCall(device, str); // Use same device as parent.
+
+   // Slide my alphabet across the Target PC display: cycle thru columns 0 to 69.
+   for(i = 0; i < 70; i++) {
+      ShowCharCall(pid, i, str[4]);
+      SleepCall(10);
+      ShowCharCall(pid, i, ' ');
+   }
+
+   // Call ExitCall with an exit code that is my_pid * 100.
+   ExitCall(pid * 100);
+
 }

@@ -48,9 +48,9 @@
 #define FALSE 0
 
 /* Phase 5 constants. */
-FORK_CALL 53
-WAIT_CALL 54
-EXIT_CALL 55
+#define FORK_CALL 53
+#define WAIT_CALL 54
+#define EXIT_CALL 55
 
 
 #endif

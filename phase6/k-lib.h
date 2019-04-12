@@ -13,5 +13,8 @@ extern int QisEmpty(q_t *p);
 extern int QisFull(q_t *p);
 extern int DeQ(q_t *p);
 extern void EnQ(int to_add, q_t *p);
+extern void MemCpy(char *, char *, int);
+extern int StrCmp(char *, char *);
+extern void Itoa(char *, int );
 
 #endif

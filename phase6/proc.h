@@ -6,6 +6,6 @@
 extern void InitProc(void);
 extern void UserProc(void);
 extern void InitTerm(int);
-
+extern void Aout(int);
 #endif
 

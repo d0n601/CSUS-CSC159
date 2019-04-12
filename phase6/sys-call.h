@@ -8,5 +8,7 @@ extern int MuxCreateCall(int);
 extern void MuxOpCall(int, int);
 extern void WriteCall(int, char *);
 extern void ReadCall(int, char *);
-
+extern int ForkCall(void);
+extern int WaitCall(void);
+extern void ExitCall(int);
 #endif //_SYS_CALL_

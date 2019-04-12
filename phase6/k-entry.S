@@ -55,6 +55,20 @@ ENTRY(Term1Entry)
 	pushl $TERM1_INTR
 	jmp PreKernel
 
+ENTRY(ForkEntry)
+	pushl $FORK_CALL
+	jmp PreKernel
+
+
+ENTRY(WaitEntry)
+	pushl $WAIT_CALL
+	jmp PreKernel
+
+
+ENTRY(ExitEntry)
+	pushl $EXIT_CALL
+	jmp PreKernel
+
 
 PreKernel: // build rest of trapframe, switch stack, pass arg, call Kernel
    pusha   // push all: eax ecx edx ebx esp ebp esi edi
