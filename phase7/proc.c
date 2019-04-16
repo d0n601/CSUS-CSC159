@@ -70,7 +70,7 @@ void UserProc(void) {
    char str1[STR_SIZE] = "PID    > ";
    char str2[STR_SIZE];
    char str3[STR_SIZE] = "Child PID:   ";
-   char str4[STR_SIZE] = "Child Exit Code:   ";
+   char str4[STR_SIZE] = "Child exit code:   ";
 
    str1[4] = '0' + my_pid / 10;  // show my PID
    str1[5] = '0' + my_pid % 10;
@@ -108,7 +108,7 @@ void UserProc(void) {
        *  must try your Itoa() (in k-lib.c) to convert exit_code to str for prompting
        *  additional prompt to terminal "\n\r" would look better like the demo.
        */
-      Itoa(&str4[16], exit_code);
+      Itoa(&str4[21], exit_code);
       WriteCall(device, str4);
       WriteCall(device, "\n\r");
    }
