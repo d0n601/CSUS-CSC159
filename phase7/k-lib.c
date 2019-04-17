@@ -60,11 +60,7 @@ void EnQ(int to_add, q_t *p) {
 
 /* Copies 'size' of bytes from 'src' to 'dst'. */
 void MemCpy(char *dst, char *src, int size) {
-
-        char *d = dst;
-        const char *s = src;
-
-        while (size--) *d++ = *s++;
+        while (size--) *dst++ = *src++;
 }
 
 
@@ -72,19 +68,14 @@ void MemCpy(char *dst, char *src, int size) {
 /* Returns TRUE if str1 and str2 are the same, otherwise, 0. */
 int StrCmp(char *str1, char *str2) {
 
-        const unsigned char *s1 = (const unsigned char *) str1;
-        const unsigned char *s2 = (const unsigned char *) str2;
-        unsigned char c1, c2;
+        while(TRUE) {
 
-        do {
-                c1 = (unsigned char) *s1++;
-                c2 = (unsigned char) *s2++;
+                if(*str1 != *str2) return FALSE;
 
-                if (c1 == '\0') return FALSE;
+                if(*str1 == '\0') return TRUE;
 
-        } while (c1 == c2);
-
-        return TRUE;
+                str1++; str2++;
+        }
 }
 
 
@@ -93,9 +84,6 @@ void Itoa(char *s, int x) {
 
         if(x >= 100000 || x < 0) return;
 
-        *--s = 0;
-
-        if (!x) *--s = '0';
-
-        for (; x; x/=10) *--s = '0' + x  % 10;
+        // THIS NEEDS TO BE CHANGED, PROBLY FATAL???
+        for (; x; x/=10) --*s = '0' + x  % 10;
 }

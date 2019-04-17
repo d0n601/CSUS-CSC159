@@ -83,7 +83,7 @@ void UserProc(void) {
       ReadCall(device, str2);   // read terminal input
 
       // Compare str2 and "fork", if not the same -> "continue;"
-      if(StrCmp(str2,"fork") != 0) continue;
+      if(StrCmp(str2,"fork") == FALSE) continue;
 
       frk = ForkCall();  // Make a ForkCall() and get its return.
 
@@ -108,7 +108,7 @@ void UserProc(void) {
        *  must try your Itoa() (in k-lib.c) to convert exit_code to str for prompting
        *  additional prompt to terminal "\n\r" would look better like the demo.
        */
-      Itoa(&str4[21], exit_code);
+      Itoa(&str4[20], exit_code);
       WriteCall(device, str4);
       WriteCall(device, "\n\r");
    }
