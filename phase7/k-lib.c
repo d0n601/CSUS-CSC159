@@ -85,5 +85,5 @@ void Itoa(char *s, int x) {
         if(x >= 100000 || x < 0) return;
 
         // THIS NEEDS TO BE CHANGED, PROBLY FATAL???
-        for (; x; x/=10) --*s = '0' + x  % 10;
+        for (; x; x/=10) *--s = '0' + x  % 10;
 }
