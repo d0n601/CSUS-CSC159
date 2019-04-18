@@ -5,7 +5,7 @@
 #include "k-const.h"   // LOOP
 #include "sys-call.h"  // all service calls used below
 #include "k-data.h"
-#include "k-lib.h"
+#include "tools.h"
 #include "k-include.h"
 #include "proc.h"
 
@@ -77,6 +77,8 @@ void UserProc(void) {
 
    device = my_pid % 2 == 1? TERM0_INTR : TERM1_INTR;
 
+   SignalCall(SIGINT, (int)Ouch);
+
    while(TRUE) {
 
       WriteCall(device, str1);  // prompt for terminal input
@@ -145,4 +147,18 @@ void Aout(int device) {
    // Call ExitCall with an exit code that is my_pid * 100.
    ExitCall(pid * 100);
 
+}
+
+
+void Ouch(int device) { WriteCall(device, "Can't touch that!\n\r"); }
+
+
+void Wrapper(int handler, int arg) {   // args implanted in stack
+
+   func_p_t2 func = (func_p_t2)handler;
+
+   asm("pushal");	//save regs
+   func(arg);	//call signal handler with arg
+   asm("popal");	//restore regs
+   asm(	"movl %%ebp, %%esp; popl %%ebp; ret $8"::); //skip handler & arg
 }

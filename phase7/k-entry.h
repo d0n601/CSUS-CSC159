@@ -22,6 +22,9 @@ extern void Term1Entry(void);
 extern void ForkEntry(void);
 extern void WaitEntry(void);
 extern void ExitEntry(void);
+extern void ExecEntry(void);
+extern void SignalEntry(void);
+
 __END_DECLS
 
 #endif // ifndef ASSEMBLER

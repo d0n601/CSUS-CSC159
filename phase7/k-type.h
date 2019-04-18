@@ -6,6 +6,7 @@
 #include "k-const.h"
 
 typedef void (*func_p_t)(void); // void-return function pointer type
+typedef void (*func_p_t2)(int);
 
 typedef enum {UNUSED, READY, RUN, SLEEP, SUSPEND, ZOMBIE, WAIT} state_t;
 
@@ -20,6 +21,7 @@ typedef struct {
 	int total_count;            // Accumulated timer counts since the creation of the process.
 	trapframe_t *trapframe_p;   // Location of the CPU context in the process stack.
 	int ppid;					// To record parent PID when the process is created by ForkSR().
+	int sigint_handler;			//
 
 } pcb_t;
 

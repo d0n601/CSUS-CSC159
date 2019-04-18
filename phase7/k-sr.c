@@ -3,8 +3,9 @@
 #include "k-include.h"
 #include "k-type.h"
 #include "k-data.h"
-#include "k-lib.h"
+#include "tools.h"
 #include "k-sr.h"
+#include "proc.h"
 
 
 /*
@@ -187,7 +188,20 @@ void TermTxSR(int term_no) {
 
 void TermRxSR(int term_no) {
 
+	int suspended_pid, sigint_handler, device;
 	char ch = inportb(term[term_no].io_base + DATA);  // Read a char from the terminal io_base+DATA.
+
+	if(ch == SIGINT && !QisEmpty(&mux[term[term_no].in_mux].suspend_q)) {
+
+		suspended_pid = mux[term[term_no].in_mux].suspend_q.q[0];
+		sigint_handler = pcb[suspended_pid].sigint_handler;
+
+		if(sigint_handler) {
+			device = term_no == 0? TERM0_INTR : TERM1_INTR;
+			WrapperSR(suspended_pid, sigint_handler, device);
+		}
+	}
+
 	EnQ(ch, &term[term_no].echo_q);				 // Enqueue char to the terminal echo_q.
 
 	// If char is CR.
@@ -198,9 +212,8 @@ void TermRxSR(int term_no) {
 	else EnQ(ch, &term[term_no].in_q); // Enqueue NUL to the terminal in_q.
 
 	MuxOpSR(term[term_no].in_mux, UNLOCK);   // Unlock the terminal in_mux.
+
 }
-
-
 
 
 int ForkSR(void) {
@@ -293,4 +306,83 @@ void ExitSR(int exit_code) {
 	pcb[run_pid].state = UNUSED;	// Alter its state to UNUSED.
 	EnQ(run_pid, &pid_q);			// Enqueue its PID to pid_q.
 	run_pid = NONE;					// Reset run_pid to NONE;
+}
+
+void ExecSR(int code, int arg) {
+
+	int i, code_page = NONE, stack_page = NONE;
+	int * code_addr, * stack_addr;
+
+
+	for(i = 0; i < PAGE_NUM; i++) {
+
+		if(page_user[i] == NONE) {
+
+			if(code_page == NONE) {
+				code_page = i;
+				continue;
+			}
+
+			// Alwasy true?
+			else if(stack_page == NONE) {
+				stack_page = i;
+			}
+
+			// Alwasy true? code_page always != None??
+			if(code_page != NONE && stack_page != NONE) {
+				page_user[code_page] = run_pid;
+				page_user[stack_page] = run_pid;
+				break;
+			}
+
+		}
+
+	}
+
+	code_addr = (int*)((code_page * PAGE_SIZE) + RAM);
+	stack_addr = (int*)((stack_page * PAGE_SIZE) + RAM);
+	MemCpy((char*)code_addr, (char *)code, PAGE_SIZE);
+	Bzero((char *)stack_addr, PAGE_SIZE);
+
+	stack_addr = (int*)((int)stack_addr + PAGE_SIZE);
+	stack_addr--;
+	*stack_addr = arg;
+	stack_addr--;
+
+	pcb[run_pid].trapframe_p = (trapframe_t *)stack_addr;
+	pcb[run_pid].trapframe_p--;
+	pcb[run_pid].trapframe_p->efl = EF_DEFAULT_VALUE | EF_INTR;
+	pcb[run_pid].trapframe_p->cs = get_cs();
+	pcb[run_pid].trapframe_p->eip = (int)code_addr;
+
+}
+
+
+
+void SignalSR(int sig_num, int handler) { pcb[run_pid].sigint_handler = handler; }
+
+
+
+void WrapperSR(int pid, int handler, int arg) {
+
+	int *p = (int *)( (int)pcb[pid].trapframe_p + sizeof(trapframe_t) );
+
+	MemCpy((char *)((int)pcb[pid].trapframe_p - sizeof(int[3])), (char *)((int)pcb[pid].trapframe_p), sizeof(trapframe_t));
+
+	pcb[pid].trapframe_p = (trapframe_t *)((int)pcb[pid].trapframe_p - sizeof(int[3]));
+
+	p--;
+
+	*p = arg;
+
+	p--;
+
+	*p = handler;
+
+	p--;
+
+	*p = pcb[pid].trapframe_p->eip;
+
+	pcb[pid].trapframe_p->eip = (int)Wrapper;
+
 }

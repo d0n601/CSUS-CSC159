@@ -6,7 +6,7 @@
 #include "k-include.h"  // SPEDE includes
 #include "k-entry.h"    // entries to kernel (TimerEntry, etc.)
 #include "k-type.h"     // kernel data types
-#include "k-lib.h"      // small handy functions
+#include "tools.h"      // small handy functions
 #include "k-sr.h"       // kernel service routines
 #include "proc.h"       // all user process code here
 
@@ -19,7 +19,7 @@ char proc_stack[PROC_SIZE][PROC_STACK_SIZE];   // process runtime stacks
 struct i386_gate *intr_table;    // intr table's DRAM location
 int vid_mux;
 mux_t mux[MUX_SIZE];     // mutex array
-
+int page_user[PAGE_NUM];
 term_t term[TERM_SIZE] = { { TRUE, TERM0_IO_BASE }, { TRUE, TERM1_IO_BASE } };
 
 
@@ -56,6 +56,8 @@ void InitKernelControl(void) {
 	fill_gate(&intr_table[FORK_CALL], (int)ForkEntry, get_cs(), ACC_INTR_GATE, 0);
 	fill_gate(&intr_table[WAIT_CALL], (int)WaitEntry, get_cs(), ACC_INTR_GATE, 0);
 	fill_gate(&intr_table[EXIT_CALL], (int)ExitEntry, get_cs(), ACC_INTR_GATE, 0);
+	fill_gate(&intr_table[EXEC_CALL], (int)ExecEntry, get_cs(), ACC_INTR_GATE, 0);
+	fill_gate(&intr_table[SIGNAL_CALL], (int)SignalEntry, get_cs(), ACC_INTR_GATE, 0);
 	outportb(PIC_MASK, MASK);   // mask out PIC for timer
 }
 
@@ -133,6 +135,12 @@ void Kernel(trapframe_t *trapframe_p) {
 			break;
 		case EXIT_CALL:
 			ExitSR(trapframe_p->eax);
+			break;
+		case EXEC_CALL:
+			ExecSR(trapframe_p->eax, trapframe_p->ebx);
+			break;
+		case SIGNAL_CALL:
+			SignalSR(trapframe_p->eax, trapframe_p->ebx);
 			break;
 		default:
 			breakpoint();

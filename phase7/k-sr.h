@@ -6,7 +6,7 @@
 #include "k-include.h"
 #include "k-type.h"
 #include "k-data.h"
-#include "k-lib.h"
+#include "tools.h"
 
 extern void NewProcSR(func_p_t p);
 extern void TimerSR(void);
@@ -22,5 +22,7 @@ extern void TermRxSR(int);
 extern int ForkSR(void);
 extern int WaitSR(void);
 extern void ExitSR(int);
-
+extern void ExecSR(int, int);
+extern void SignalSR(int, int);
+extern void WrapperSR(int, int, int);
 #endif

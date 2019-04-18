@@ -11,4 +11,6 @@ extern void ReadCall(int, char *);
 extern int ForkCall(void);
 extern int WaitCall(void);
 extern void ExitCall(int);
+extern void ExecCall(int, int);
+extern void SignalCall(int, int);
 #endif //_SYS_CALL_

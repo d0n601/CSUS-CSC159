@@ -47,10 +47,20 @@
 #define TRUE 1
 #define FALSE 0
 
+
 /* Phase 5 constants. */
 #define FORK_CALL 53
 #define WAIT_CALL 54
 #define EXIT_CALL 55
+
+
+/* Phase 7 constants. */
+#define EXEC_CALL 56        // for ExecCall(), for child process to run its own code
+#define SIGNAL_CALL 57      // for SignalCall(), to request a signal-handler service
+#define SIGINT 3            // CTRL-C (ASCII 3)
+#define PAGE_NUM 20         // OS has 20 DRAM pages (to experiment with)
+#define PAGE_SIZE 4096      // each DRAM page is 4KB
+#define RAM 0xe00000        // DRAM starts at 14MB
 
 
 #endif
