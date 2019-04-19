@@ -80,10 +80,19 @@ int StrCmp(char *str1, char *str2) {
 
 
 /* Converts an unsigned decimal number x < 100000 into str. */
-void Itoa(char *s, int x) {
+void Itoa(char *str, int x) {
+
+        int c, digits = 0, buff = x;
 
         if(x >= 100000 || x < 0) return;
 
-        // THIS NEEDS TO BE CHANGED, PROBLY FATAL???
-        for (; x; x/=10) *--s = '0' + x  % 10;
+        do { buff /= 10; digits++; } while(buff != 0);
+
+
+        for(c = 0; c < digits; c++) {
+                *(str + digits - (c+1)) = '0' + x % 10;
+                x /= 10;
+        }
+
+        *(str + digits) = '\0'; // Never forget...
 }
