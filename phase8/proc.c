@@ -96,12 +96,8 @@ void UserProc(void) {
 
       if(frk == 0) Aout(device); //child code
 
-      if(frk > 9) Itoa(&str3[11], frk);
+      else Itoa(&str3[11], frk);
 
-      else {
-         Itoa(&str3[11], 0);
-         Itoa(&str3[12], frk);
-      }
 
       /*
        * Prompt to terminal: the child PID (see demo)  // parent code
