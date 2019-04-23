@@ -96,10 +96,18 @@ void UserProc(void) {
 
       if(frk == 0) Aout(device); //child code
 
+      if(frk > 9) Itoa(&str3[11], frk);
+
+      else {
+         Itoa(&str3[11], 0);
+         Itoa(&str3[12], frk);
+      }
+
       /*
        * Prompt to terminal: the child PID (see demo)  // parent code
        * additional prompt to terminal "\n\r" would look better like the demo
        */
+
       WriteCall(device, str3); //parent code
       WriteCall(device, "\n\r");
 
@@ -110,7 +118,7 @@ void UserProc(void) {
        *  must try your Itoa() (in k-lib.c) to convert exit_code to str for prompting
        *  additional prompt to terminal "\n\r" would look better like the demo.
        */
-      Itoa(&str4[20], exit_code);
+      Itoa(&str4[17], exit_code);
       WriteCall(device, str4);
       WriteCall(device, "\n\r");
    }
