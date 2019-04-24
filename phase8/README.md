@@ -60,7 +60,7 @@
 7. **(DONE)** In main.c, the 3 new entry addresses are added into intr_table,
    and Kernel() has 3 new cases.
 
-8. in k-sr.c/.h:
+8. **(DONE)** in k-sr.c/.h:
   
    ````
    void PauseSR(void)
