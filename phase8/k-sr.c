@@ -104,7 +104,6 @@ void SleepSR(int centi_sec) {
 }
 
 
-
 int MuxCreateSR(int flag) {
 
 	int mux_id;
@@ -116,7 +115,6 @@ int MuxCreateSR(int flag) {
 
 	return mux_id;
 }
-
 
 
 void MuxOpSR(int mux_id, int opcode) {
@@ -146,7 +144,6 @@ void MuxOpSR(int mux_id, int opcode) {
 }
 
 
-
 void TermSR(int term_no) {
 
 	int type = inportb(term[term_no].io_base + IIR);
@@ -157,7 +154,6 @@ void TermSR(int term_no) {
 
 	if(term[term_no].tx_missed) TermTxSR(term_no);
 }
-
 
 
 void TermTxSR(int term_no) {
@@ -183,7 +179,6 @@ void TermTxSR(int term_no) {
 	outportb(term[term_no].io_base + DATA, ch);  // Send char via outportb.
 	term[term_no].tx_missed = FALSE;			 // Set tx_missed to FALSE.
 }
-
 
 
 void TermRxSR(int term_no) {
@@ -288,7 +283,6 @@ int WaitSR(void) {
 }
 
 
-
 void ExitSR(int exit_code) {
 
 	// If the process state of my parent (ppid) is not WAIT.
@@ -307,6 +301,7 @@ void ExitSR(int exit_code) {
 	EnQ(run_pid, &pid_q);			// Enqueue its PID to pid_q.
 	run_pid = NONE;					// Reset run_pid to NONE;
 }
+
 
 void ExecSR(int code, int arg) {
 
@@ -358,9 +353,7 @@ void ExecSR(int code, int arg) {
 }
 
 
-
 void SignalSR(int sig_num, int handler) { pcb[run_pid].sigint_handler = handler; }
-
 
 
 void WrapperSR(int pid, int handler, int arg) {
@@ -385,4 +378,26 @@ void WrapperSR(int pid, int handler, int arg) {
 
 	pcb[pid].trapframe_p->eip = (int)Wrapper;
 
+}
+
+
+void PauseSR(void) {
+		//a. alter the state of the running process
+		//b. the running process is now NONE
+}
+
+
+void KillSR(int pid, int sig_num) {
+	/*if pid is 0 {
+	loop thru PCB array {
+			look for ppid is the running process and state is PAUSE
+			if found: a. update its state to ? b. enqueue it to ?
+	*/
+}
+
+
+unsigned RandSR(void) {}
+		rand = run_pid * rand + A_PRIME;
+		rand %= G2;
+		return rand;
 }

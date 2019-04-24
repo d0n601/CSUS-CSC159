@@ -13,4 +13,7 @@ extern int WaitCall(void);
 extern void ExitCall(int);
 extern void ExecCall(int, int);
 extern void SignalCall(int, int);
+extern void PauseCall(void);
+extern void KillCall(int, int);
+extern unsigned RandCall(void);
 #endif //_SYS_CALL_

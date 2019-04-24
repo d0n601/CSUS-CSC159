@@ -206,3 +206,12 @@ void SignalCall(int sig_num, int handler) {
 		: "eax", "ebx"
 	);
 }
+
+
+void PauseCall(void) { }
+
+
+void KillCall(int pid, int sig_num) { }
+
+
+unsigned RandCall(void) { }

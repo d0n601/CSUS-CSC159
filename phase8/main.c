@@ -21,6 +21,7 @@ int vid_mux;
 mux_t mux[MUX_SIZE];     // mutex array
 int page_user[PAGE_NUM];
 term_t term[TERM_SIZE] = { { TRUE, TERM0_IO_BASE }, { TRUE, TERM1_IO_BASE } };
+unsigned rand = 0;
 
 
 /* Init kernel data */

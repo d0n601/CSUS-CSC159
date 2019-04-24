@@ -63,4 +63,14 @@
 #define RAM 0xe00000        // DRAM starts at 14MB
 
 
+/* Phase 8 constants. */
+#define PAUSE_CALL 58      // to pause a process
+#define KILL_CALL 59       // to kill is actually to send a signal
+#define RAND_CALL 60       // to get a random number
+#define SIGGO 4            // a new signal
+#define A_PRIME 6700417
+#define G2 2147483647      // 2G-1, % operator can't take a full 2G
+
+
+
 #endif

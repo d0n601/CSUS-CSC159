@@ -19,4 +19,5 @@ extern mux_t mux[MUX_SIZE];
 extern int vid_mux;
 extern term_t term[TERM_SIZE];
 extern int page_user[PAGE_NUM];
+extern unsigned rand;
 #endif                         // endif of ifndef

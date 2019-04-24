@@ -78,7 +78,22 @@ ENTRY(ExecEntry)
 
 ENTRY(SignalEntry)
 	pushl $SIGNAL_CALL
-jmp PreKernel
+    jmp PreKernel
+
+
+ENTRY(PauseEntry)
+    pushl $PAUSE_CALL
+    jmp PreKernel
+
+
+ENTRY(KillEntry)
+    pushl $KILL_CALL
+    jmp PreKernel
+
+
+ENTRY(RandEntry)
+    pushl $RAND_CALL
+    jmp PreKernel
 
 
 PreKernel: // build rest of trapframe, switch stack, pass arg, call Kernel

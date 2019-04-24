@@ -24,7 +24,9 @@ extern void WaitEntry(void);
 extern void ExitEntry(void);
 extern void ExecEntry(void);
 extern void SignalEntry(void);
-
+extern void PauseEntry(void);
+extern void KillEntry(void);
+extern void RandEntry(void);
 __END_DECLS
 
 #endif // ifndef ASSEMBLER
