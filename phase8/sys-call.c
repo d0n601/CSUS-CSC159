@@ -208,10 +208,34 @@ void SignalCall(int sig_num, int handler) {
 }
 
 
-void PauseCall(void) { }
+void PauseCall(void) {
+	asm("int %0":: "g" (PAUSE_CALL));
+}
 
 
-void KillCall(int pid, int sig_num) { }
+void KillCall(int pid, int sig_num) {
+	asm("
+		movl %0, %%eax;
+		movl %1, %%ebx;
+		int %2"
+		:
+		: "g" (pid), "g" (sig_num), "g" (KILL_CALL)
+		: "eax", "ebx"
+	);
+}
 
 
-unsigned RandCall(void) { }
+unsigned RandCall(void) {
+
+	int rand;
+
+	asm("
+		int %1;
+		movl %%eax, %0"
+		: "=g" (rand)
+		: "g" (RAND_CALL)
+		: "eax"
+	);
+
+	return rand;
+}
