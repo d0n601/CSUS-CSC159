@@ -45,7 +45,7 @@
    A_PRIME 6700417
    G2 2147483647      // 2G-1, % operator can't take a full 2G
 
-5. syscall.c/.h needs code of 3 new calls:
+5. **(DONE)** syscall.c/.h needs code of 3 new calls:
     ````
    void PauseCall(void)
    void KillCall(int pid, int sig_num)
