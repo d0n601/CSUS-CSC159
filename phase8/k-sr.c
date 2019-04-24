@@ -382,21 +382,28 @@ void WrapperSR(int pid, int handler, int arg) {
 
 
 void PauseSR(void) {
-		//a. alter the state of the running process
-		//b. the running process is now NONE
+    pcb[run_pid].state = PAUSE;  // Alter the state of the running process.
+    run_pid = NONE;             // The running process is now NONE.
 }
 
 
 void KillSR(int pid, int sig_num) {
-	/*if pid is 0 {
-	loop thru PCB array {
-			look for ppid is the running process and state is PAUSE
-			if found: a. update its state to ? b. enqueue it to ?
-	*/
+
+    int i;
+
+    if(pid == 0) {
+        for( i = 0; i < PROC_SIZE; i++ ) {
+            if(pcb[i].ppid == run_pid && pcb[i].state == PAUSE) {
+                pcb[i].state = READY;
+                EnQ(i, &ready_q);
+            }
+        }
+    }
+
 }
 
 
-unsigned RandSR(void) {}
+unsigned RandSR(void) {
 		rand = run_pid * rand + A_PRIME;
 		rand %= G2;
 		return rand;
