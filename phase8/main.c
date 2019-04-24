@@ -59,6 +59,9 @@ void InitKernelControl(void) {
 	fill_gate(&intr_table[EXIT_CALL], (int)ExitEntry, get_cs(), ACC_INTR_GATE, 0);
 	fill_gate(&intr_table[EXEC_CALL], (int)ExecEntry, get_cs(), ACC_INTR_GATE, 0);
 	fill_gate(&intr_table[SIGNAL_CALL], (int)SignalEntry, get_cs(), ACC_INTR_GATE, 0);
+	fill_gate(&intr_table[PAUSE_CALL], (int)PauseEntry, get_cs(), ACC_INTR_GATE, 0);
+	fill_gate(&intr_table[KILL_CALL], (int)KillEntry, get_cs(), ACC_INTR_GATE, 0);
+	fill_gate(&intr_table[RAND_CALL], (int)RandEntry, get_cs(), ACC_INTR_GATE, 0);
 	outportb(PIC_MASK, MASK);   // mask out PIC for timer
 }
 
@@ -142,6 +145,15 @@ void Kernel(trapframe_t *trapframe_p) {
 			break;
 		case SIGNAL_CALL:
 			SignalSR(trapframe_p->eax, trapframe_p->ebx);
+			break;
+		case PAUSE_CALL:
+			PauseSR();
+			break;
+		case KILL_CALL:
+			KillSR(trapframe_p->eax, trapframe_p->ebx);
+			break;
+		case RAND_CALL:
+			trapframe_p->eax = RandSR();
 			break;
 		default:
 			breakpoint();
