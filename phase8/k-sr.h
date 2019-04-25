@@ -26,5 +26,6 @@ extern void ExecSR(int, int);
 extern void SignalSR(int, int);
 extern void WrapperSR(int, int, int);
 extern void PauseSR(void);
-extern void void KillSR(int, int);
+extern void KillSR(int, int);
+extern unsigned RandSR(void);
 #endif

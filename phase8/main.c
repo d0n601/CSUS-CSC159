@@ -161,9 +161,15 @@ void Kernel(trapframe_t *trapframe_p) {
 
 	/* keyboard of target PC is pressed */
 	if( cons_kbhit() ) {
+
 		ch = cons_getchar();                 //  Read the key.
+
 		if(ch == 'b') breakpoint();             // 'b' for breakpoint.
-		else if(ch == 'n') NewProcSR(UserProc);   // 'n' for new process.
+
+		else if(ch == 'n') {   // 'n' for new process.
+			NewProcSR(UserProc);
+			if(rand == 0) rand = sys_centi_sec;
+		}
 	}
 
 	Scheduler();                             // Call Scheduler()... may need to pick another proc.
