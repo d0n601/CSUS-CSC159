@@ -6,7 +6,7 @@
 1. **(DONE)** Enter 'race' at a terminal prompt and 5 child processes will race
    across the PC screen, and results will be shown by the parent process.
 
-2. proc.c, check how demo runs:
+2. **(DONE)** proc.c, check how demo runs:
 
    Aout is mostly the same as before except
    a. make a call PauseCall() before the loop to show its letter
