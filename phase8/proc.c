@@ -137,7 +137,7 @@ void Aout(int device) {
 
    int i, rand;
    int pid = GetPidCall();
-   char str[STR_SIZE] = "xx ( ) Hello, World!\n\r\0";
+   char str[] = "xx ( ) Hello, World!\n\r\0";
 
    str[0] = '0' + pid / 10;
    str[1] = '0' + pid % 10;
