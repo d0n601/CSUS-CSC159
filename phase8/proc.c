@@ -71,7 +71,7 @@ void UserProc(void) {
    char str2[STR_SIZE];
    char str3[STR_SIZE] = "Child PID:   ";
    char str4[STR_SIZE] = "Child exit code:   ";
-   char str5[STR_SIZE] = "X  ARRIVES!!!";
+   char str5[STR_SIZE] = "X arrives!";
 
 
    str1[4] = '0' + my_pid / 10;  // show my PID
@@ -119,12 +119,12 @@ void UserProc(void) {
        for(i = 0; i < 5; i++) {
 
            exit_code = WaitCall();    // Make a WaitCall() and get an exit code from child.
-           Itoa(&str4[17], frk);
+           Itoa(&str4[17], exit_code);
            WriteCall(device, str4);
 
            WriteCall(device, " ");
 
-           str5[0] = frk / 100 + 'A';
+           str5[0] = exit_code / 100 + 'A';
            WriteCall(device, str5);
            WriteCall(device, "\n\r");
        }
@@ -135,7 +135,8 @@ void UserProc(void) {
 
 void Aout(int device) {
 
-   int i, rand, pid = GetPidCall();
+   int i, rand;
+   int pid = GetPidCall();
    char str[STR_SIZE] = "xx ( ) Hello, World!\n\r\0";
 
    str[0] = '0' + pid / 10;
