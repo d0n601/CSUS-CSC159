@@ -21,7 +21,8 @@ typedef struct {
 	int total_count;            // Accumulated timer counts since the creation of the process.
 	trapframe_t *trapframe_p;   // Location of the CPU context in the process stack.
 	int ppid;					// To record parent PID when the process is created by ForkSR().
-	int sigint_handler;			//
+	int sigint_handler;
+	int main_table;
 
 } pcb_t;
 

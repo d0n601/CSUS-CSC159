@@ -6,7 +6,7 @@ k-type.h
    PCB has a new 'int main_table' that must be filled out in
    NewProcSR, ForkSR, and ExecSR.
 
-main.c:
+**(done)** main.c: 
    Declare 'int kernel_main_table' (prototype in k-data.h).
    Initialize kernel_main_table = get_cr3() during bootstrap.
    And, before Loader(...), do set_cr3(pcb...) (two places).

@@ -22,7 +22,7 @@ mux_t mux[MUX_SIZE];     // mutex array
 int page_user[PAGE_NUM];
 term_t term[TERM_SIZE] = { { TRUE, TERM0_IO_BASE }, { TRUE, TERM1_IO_BASE } };
 unsigned rand = 0;
-
+int kernel_main_table;
 
 /* Init kernel data */
 void InitKernelData(void) {
@@ -30,6 +30,7 @@ void InitKernelData(void) {
 	int i;
 	sys_centi_sec = 0;
 	intr_table = get_idt_base();            // Get intr table location.
+    kernel_main_table = get_cr3();          // Initialize kernel_main_table = get_cr3() during bootstrap.
 
 	/* Clear all queues. */
 	Bzero((char *) &pid_q, sizeof(q_t));
@@ -90,8 +91,8 @@ int main(void) {
 	InitKernelControl();    // call to initialize kernel control.
 	NewProcSR(InitProc);    // create InitProc
 	Scheduler();            // call Scheduler()
-
-	Loader(pcb[run_pid].trapframe_p);   // call Loader(pcb[run_pid].trapframe_p); load/run it
+    set_cr3(pcb[run_pid].main_table);   // Before Loader(...), do set_cr3(pcb...) (two places).
+    Loader(pcb[run_pid].trapframe_p);   // call Loader(pcb[run_pid].trapframe_p); load/run it
 
 	return 0; // statement never reached, compiler asks it for syntax
 }
@@ -173,5 +174,6 @@ void Kernel(trapframe_t *trapframe_p) {
 	}
 
 	Scheduler();                             // Call Scheduler()... may need to pick another proc.
-	Loader(pcb[run_pid].trapframe_p);        // Loader(...).
+    set_cr3(pcb[run_pid].main_table);        // Before Loader(...), do set_cr3(pcb...) (two places).
+    Loader(pcb[run_pid].trapframe_p);        // Loader(...).
 }
