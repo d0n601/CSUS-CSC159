@@ -58,7 +58,6 @@
 #define EXEC_CALL 56        // for ExecCall(), for child process to run its own code
 #define SIGNAL_CALL 57      // for SignalCall(), to request a signal-handler service
 #define SIGINT 3            // CTRL-C (ASCII 3)
-#define PAGE_NUM 20         // OS has 20 DRAM pages (to experiment with)
 #define PAGE_SIZE 4096      // each DRAM page is 4KB
 #define RAM 0xe00000        // DRAM starts at 14MB
 
@@ -71,6 +70,14 @@
 #define A_PRIME 6700417
 #define G2 2147483647      // 2G-1, % operator can't take a full 2G
 
+/* Phase 9 constants. */
+#define PAGE_NUM 100                       // up the page number from 20
+#define M256 0x10000000                    // virtual space starts 256MB
+#define G1_1 0x3fffffff                    // virtual space ends 1G-1B
+#define V_TF (G1_1 - sizeof(int [2]) - sizeof(trapframe_t) + 1) // virtual TF locale
+#define MASK10 0x003ff000                  // mask out others except 2nd 10 bits
+#define PRESENT 0x1                        // flag indicating page is Present
+#define RW 0x2                             // flag indicating page is R/W-able
 
 
 #endif

@@ -5,12 +5,14 @@
 k-type.h
    PCB has a new 'int main_table' that must be filled out in
    NewProcSR, ForkSR, and ExecSR.
+   
 
 **(done)** main.c: 
    Declare 'int kernel_main_table' (prototype in k-data.h).
    Initialize kernel_main_table = get_cr3() during bootstrap.
    And, before Loader(...), do set_cr3(pcb...) (two places).
 
+```
 NewProcSR
    set the new pcb[..].main_table = kernel_main_table
 
@@ -21,8 +23,9 @@ WaitSR
    use set_cr3() to switch to child's virtual space in order to access
    its trapframe for exit code, and switch back to run_pid's space
    (test this by adding SleepCall(1500) after KillCall(..) in UserProc)
+```
 
-New constants:
+**(done)** New constants:
 ```
    PAGE_NUM 100                       // up the page number from 20
    M256 0x10000000                    // virtual space starts 256MB

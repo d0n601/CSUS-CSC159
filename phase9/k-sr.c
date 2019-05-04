@@ -36,6 +36,8 @@ void NewProcSR(func_p_t p) {  // arg: where process code starts
 	pcb[pid].trapframe_p->efl = EF_DEFAULT_VALUE|EF_INTR;      // enables intr
 	pcb[pid].trapframe_p->cs = get_cs();                      // dupl from CPU
 	pcb[pid].trapframe_p->eip = (unsigned int)p;              // set to code
+	pcb[pid].main_table = kernel_main_table;				 // PCB 'int main_table' that must be filled out.
+
 }
 
 
@@ -254,13 +256,15 @@ int ForkSR(void) {
 		p = (int *)*p; 		// Set p to the adjusted value (need a typecast).
 	}
 
+	pcb[child_pid].main_table = kernel_main_table;
+
 	return child_pid;    // Return child PID.
 }
 
 
 int WaitSR(void) {
 
-	int i, exit_code;
+	int i, j, exit_code;
 
 	// 	Loop thru the PCB array (looking for a ZOMBIE child).
 	for(i = 0; i < PROC_SIZE; i++) {
@@ -275,11 +279,16 @@ int WaitSR(void) {
 		return NONE;			    // Return NONE.
 	}
 
-	exit_code = pcb[i].trapframe_p->eax;  // Get its exit code (from the eax of the child's trapframe).
+    set_cr3(pcb[i].main_table);           // Switch to child's virtual space in order to access its trapframe for exit code
+    exit_code = pcb[i].trapframe_p->eax;  // Get its exit code (from the eax of the child's trapframe).
 	pcb[i].state = UNUSED;				  // Alter its state to UNUSED.
 	EnQ(i, &pid_q);						  // Enqueue its PID to pid_q.
 
-	return exit_code;  // Return the exit code.
+    set_cr3(pcb[run_pid].main_table);     // Switch back to run_pid's space.
+
+    for(j = 0; j < PAGE_NUM; j++) if(page_user[j] == i) page_user[j] = NONE;
+
+    return exit_code;  // Return the exit code.
 }
 
 
@@ -305,51 +314,100 @@ void ExitSR(int exit_code) {
 
 void ExecSR(int code, int arg) {
 
-	int i, code_page = NONE, stack_page = NONE;
-	int * code_addr, * stack_addr;
+    int i, j = 0, pages[5] = { NONE }, *p, entry;
+    trapframe_t *q;
+    enum {MAIN_TABLE, CODE_TABLE, STACK_TABLE, CODE_PAGE, STACK_PAGE};
 
 
-	for(i = 0; i < PAGE_NUM; i++) {
+    // Allocate 5 RAM pages by loop page_user array, find each, put index in pages[5]
+    //     if not getting 5 indices -> show Panic msg, return
+    //            set page_user[] to so they're now used by run_pid
+    //    calculate their addresses (put in/re-use pages[] which had indices)
+    for(i = 0; i < PAGE_NUM; i++){
+        if(page_user[i] == NONE) {
+            pages[j] = i;
+            j++;
+            page_user[i] = run_pid;
+        }
 
-		if(page_user[i] == NONE) {
+        if(j == 5) break;
 
-			if(code_page == NONE) {
-				code_page = i;
-				continue;
-			}
+        if(i == PAGE_NUM) {
+            cons_printf("It's time to panic, we're out of DRAM pages...\\n\n");
+            breakpoint();
+        }
+    }
 
-			// Alwasy true?
-			else if(stack_page == NONE) {
-				stack_page = i;
-			}
+    pages[MAIN_TABLE] = (pages[MAIN_TABLE] * PAGE_SIZE) + RAM;
+    pages[CODE_TABLE] = (pages[CODE_TABLE] * PAGE_SIZE) + RAM;
+    pages[STACK_TABLE] = (pages[STACK_TABLE] * PAGE_SIZE) + RAM;
+    pages[CODE_PAGE] = (pages[CODE_PAGE] * PAGE_SIZE) + RAM;
+    pages[STACK_PAGE] = (pages[STACK_PAGE] * PAGE_SIZE) + RAM;
 
-			// Alwasy true? code_page always != None??
-			if(code_page != NONE && stack_page != NONE) {
-				page_user[code_page] = run_pid;
-				page_user[stack_page] = run_pid;
-				break;
-			}
 
-		}
+    // Build code page (use addr already calculated in pages[CODE_PAGE])
+    MemCpy((char*)pages[CODE_PAGE], (char *)code, PAGE_SIZE);
 
-	}
+    // Build stack page (addr is pages[STACK_PAGE])
+    Bzero((char *)pages[STACK_PAGE], PAGE_SIZE); // Bzero it
 
-	code_addr = (int*)((code_page * PAGE_SIZE) + RAM);
-	stack_addr = (int*)((stack_page * PAGE_SIZE) + RAM);
-	MemCpy((char*)code_addr, (char *)code, PAGE_SIZE);
-	Bzero((char *)stack_addr, PAGE_SIZE);
+    p = (int *)(pages[STACK_PAGE] + PAGE_SIZE);  // Put arg on top (set p, lower it, and write to where it points)
+    p--;                                        //  Skip 4 bytes (not used, just lower p)
 
-	stack_addr = (int*)((int)stack_addr + PAGE_SIZE);
-	stack_addr--;
-	*stack_addr = arg;
-	stack_addr--;
+    // Build trapframe
+    *p = arg;
+    p--;
 
-	pcb[run_pid].trapframe_p = (trapframe_t *)stack_addr;
-	pcb[run_pid].trapframe_p--;
-	pcb[run_pid].trapframe_p->efl = EF_DEFAULT_VALUE | EF_INTR;
-	pcb[run_pid].trapframe_p->cs = get_cs();
-	pcb[run_pid].trapframe_p->eip = (int)code_addr;
+    q = (trapframe_t *)p;     // Set q to p (needs typecasting of course)
+    q--;                      // Lower q (by one whole trapframe_t space)
 
+    // Set q->efl and q->cs as before
+    q->efl = EF_DEFAULT_VALUE | EF_INTR;
+    q->cs = get_cs();
+
+    q->eip = (unsigned int)M256; // Set q->eip to virtual addr, the constant M256
+
+    // Build addr-trans main table
+    Bzero((char *)pages[MAIN_TABLE], PAGE_SIZE); // Bzero it
+
+    // MemCpy from kernel_main_table to duplicate the 1st 4 entries (each size int)
+    MemCpy((char*)pages[MAIN_TABLE], (char *)kernel_main_table, sizeof(int[4]));
+
+    entry =  M256 >> 22; // Get entry # = leftmost 10 bits in virtual addr M256
+
+    // Set the content of this entry to the addr of code table bitwise-OR-ed with the PRESENT and RW flags
+    *((int *)pages[MAIN_TABLE] + entry) = pages[CODE_TABLE] | PRESENT |RW;
+
+    // Get entry # from leftmost 10 bits in virtual addr G1_1 (or V_TF, same)
+    entry = G1_1 >> 22;
+
+    // Set the content of this entry to the addr of stack table bitwise-OR-ed with the PRESENT and RW flags
+    *((int *)pages[MAIN_TABLE] + entry) = pages[STACK_TABLE] | PRESENT | RW;
+
+
+    // Build code table (subtable)
+    Bzero((char *)pages[CODE_TABLE], PAGE_SIZE);   // Bzero it
+
+    // Get entry # = bits 11~20 from left (2nd 10 bits) in virtual addr M256 (use MASK10)
+    entry = M256 & MASK10 >> 12;
+
+    // Set the content of this entry to the addr of code page bitwise-OR-ed with the PRESENT and RW flags
+    *((int *)pages[CODE_TABLE] + entry) = pages[CODE_PAGE] | PRESENT | RW;
+
+
+    // Build stack table (subtable)
+    Bzero((char *)pages[STACK_TABLE], PAGE_SIZE);   // Bzero it.
+
+    // Get entry # = bits 11~20 from left (2nd 10 bits) in virtual addr G1_1 (use MASK10)
+    entry = G1_1 & MASK10 >> 12;
+
+    // Set the content of this entry to the addr of stack page bitwise-OR-ed with the PRESENT and RW flags
+    *((int *)pages[STACK_TABLE] + entry) = pages[STACK_PAGE] | PRESENT | RW;
+
+    // Set the main_table in the PCB of run_pid to the addr of the main table
+    pcb[run_pid].main_table = pages[MAIN_TABLE];
+    // Set the trapframe_p in the PCB of run_pid to V_TF (typecast of course)
+    pcb[run_pid].trapframe_p = (trapframe_t *)V_TF;
 }
 
 
